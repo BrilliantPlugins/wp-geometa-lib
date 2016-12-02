@@ -1,4 +1,7 @@
 <?php
+/**
+ * Version: 0.3.0
+ */
 
 defined( 'ABSPATH' ) or die( 'No direct access' );
 

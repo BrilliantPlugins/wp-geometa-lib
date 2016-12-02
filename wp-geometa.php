@@ -419,16 +419,23 @@ array(
 					FROM $metatable 
 					LEFT JOIN {$metatable}_geo ON ({$metatable}_geo.fk_meta_id = $metatable.$meta_pkey )
 					WHERE 
-					( $metatable.meta_value LIKE '{%{%Feature%geometry%}%' -- By using a leading { we can get some small advantage from MySQL indexes
+					( 
+					$metatable.meta_value LIKE '{%Feature%geometry%}%' -- By using a leading { we can get some small advantage from MySQL indexes
+					OR $metatable.meta_value LIKE '{%geometry%Feature%}%' -- By using a leading { we can get some small advantage from MySQL indexes
 					OR $metatable.meta_value LIKE 'a:%{%Feature%geometry%}%' -- But we also need to handle serialized GeoJSON arrays
+					OR $metatable.meta_value LIKE 'a:%{%geometry%Feature%}%' -- But we also need to handle serialized GeoJSON arrays
 				)
 				AND {$metatable}_geo.fk_meta_id IS NULL
 				AND $metatable.$meta_pkey > $maxid 
 				ORDER BY $metatable.$meta_pkey
 				LIMIT 100";
+				
+				print $q . "\n\n";
 
 				$res = $wpdb->get_results( $q,ARRAY_A ); // @codingStandardsIgnoreLine
 				$found_rows = count( $res );
+
+				print $found_rows . "\n";
 
 				foreach ( $res as $row ) {
 					$geometry = WP_GeoUtil::metaval_to_geom( $row['meta_value'] );

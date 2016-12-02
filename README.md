@@ -8,6 +8,30 @@ and search spatial metadata like you do any other metadata, but using MySQL spat
 WP-GeoMeta was created with developers in mind. If you find it cumbersome, buggy or 
 missing features, let us know! 
 
+<!-- #toc -->
+
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+    - [Writing and Reading Data](#writing-and-reading-data)
+    - [Querying](#querying)
+    - [ORDER BY](#order-by)
+- [Server Requirements](#server-requirements)
+    - [WordPress](#wordpress)
+    - [PHP](#php)
+- [Frequently Asked Questions](#frequently-asked-questions)
+    - [What spatial comparisons are supported?](#what-spatial-comparisons-are-supported)
+- [Hooks: Filters and Actions](#hooks-filters-and-actions)
+- [Why WP-GeoMeta?](#why-wp-geometa)
+    - [Integration with Other Plugins](#integration-with-other-plugins)
+    - [Why not separate lat and long fields?](#why-not-separate-lat-and-long-fields)
+    - [OK, fine, but I really need separate fields](#ok-fine-but-i-really-need-separate-fields)
+- [How to Use WP-GeoMeta](#how-to-use-wp-geometa)
+- [Important Notes](#important-notes)
+- [Hacking](#hacking)
+- [Quotes](#quotes)
+
+<!-- /toc -->
+
 Quick Start
 -----------
 

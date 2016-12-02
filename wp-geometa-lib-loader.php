@@ -32,8 +32,8 @@ if ( 0 === $wp_geometa_version_status || '0.0.0' === $wp_geometa_max_version ) {
 	// Other instances of WP_GeoMeta shouldn't have loaded these classes
 	// unless they're the same version as this instance.
 	if ( ! class_exists( 'WP_GeoMeta' ) ) {
-		require_once( dirname( __FILE__ ) . '/lib/wp-geoquery.php' );
-		require_once( dirname( __FILE__ ) . '/lib/wp-geometa.php' );
+		require_once( dirname( __FILE__ ) . '/wp-geoquery.php' );
+		require_once( dirname( __FILE__ ) . '/wp-geometa.php' );
 		$wpgeo = WP_GeoMeta::get_instance();
 		$wpgq = WP_GeoQuery::get_instance();
 
@@ -68,8 +68,8 @@ if ( ! function_exists( 'wp_geometa_load_older_version' ) ) {
 		if ( ! class_exists( 'WP_GeoMeta' ) ) {
 
 			require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
-			require_once( dirname( __FILE__ ) . '/lib/wp-geoquery.php' );
-			require_once( dirname( __FILE__ ) . '/lib/wp-geometa.php' );
+			require_once( dirname( __FILE__ ) . '/wp-geoquery.php' );
+			require_once( dirname( __FILE__ ) . '/wp-geometa.php' );
 			$wpgeo = WP_GeoMeta::get_instance();
 			$wpgq = WP_GeoQuery::get_instance();
 
@@ -171,7 +171,7 @@ if ( ! function_exists( 'wpgeometa_activation_hook' ) ) {
 	 * Simple callback for the activation hook. Creates the spatial tables.
 	 */
 	function wpgeometa_activation_hook() {
-		require_once( dirname( __FILE__ ) . '/lib/wp-geometa.php' );
+		require_once( dirname( __FILE__ ) . '/wp-geometa.php' );
 		$wpgeo = WP_GeoMeta::get_instance();
 		$wpgeo->create_geo_tables();
 	}

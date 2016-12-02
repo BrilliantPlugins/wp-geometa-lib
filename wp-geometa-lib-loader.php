@@ -1,17 +1,25 @@
 <?php
+
 /**
- * Version: 0.3.0
+ * This is the loader file for WP-GeoMeta-lib. 
+ *
+ * To include spatial metadata support in your plugin, simply include this file.
+ *
+ * WP-GeoMeta-lib handles having multiple versions of itself installed corretly, always loading the latest version.
+ *
+ * It also handles setting up the spatial meta tables, so this file should be included directly, and not inside a hook or action
+ *
  */
 
+
 defined( 'ABSPATH' ) or die( 'No direct access' );
+
+$wp_geometa_version = '0.3.0'; // Also change down in wp_geometa_load_older_version()
 
 /**
  * Gather some self metadata so that if WP-GeoMeta is included as a lib in multiple plugins
  * and/or as a plugin itself, we can determine which one to load.
  */
-require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
-$this_plugin_info = get_plugin_data( __FILE__, false, false );
-$wp_geometa_version = $this_plugin_info['Version'];
 $wp_geometa_max_version = get_option( 'wp_geometa_version', '0.0.0' );
 $wp_geometa_db_version = get_option( 'wp_geometa_db_version', '0.0.0' );
 
@@ -73,8 +81,7 @@ if ( ! function_exists( 'wp_geometa_load_older_version' ) ) {
 			$wpgeo = WP_GeoMeta::get_instance();
 			$wpgq = WP_GeoQuery::get_instance();
 
-			$this_plugin_info = get_plugin_data( __FILE__, false, false );
-			$wp_geometa_version = $this_plugin_info['Version'];
+			$wp_geometa_version = '0.3.0';
 			$wp_geometa_max_version = get_option( 'wp_geometa_version', '0.0.0' );
 			$wp_geometa_db_version = get_option( 'wp_geometa_db_version', '0.0.0' );
 

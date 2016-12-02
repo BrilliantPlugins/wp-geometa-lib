@@ -75,7 +75,6 @@ if ( ! function_exists( 'wp_geometa_load_older_version' ) ) {
 	function wp_geometa_load_older_version() {
 		if ( ! class_exists( 'WP_GeoMeta' ) ) {
 
-			require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 			require_once( dirname( __FILE__ ) . '/wp-geoquery.php' );
 			require_once( dirname( __FILE__ ) . '/wp-geometa.php' );
 			$wpgeo = WP_GeoMeta::get_instance();

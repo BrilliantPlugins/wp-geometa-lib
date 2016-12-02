@@ -91,7 +91,7 @@ class WP_GeoMeta {
 	 * Set up our filters
 	 */
 	protected function __construct() {
-		define( 'WP_GEOMETA_HOME', dirname( dirname( __FILE__ ) ) );
+		define( 'WP_GEOMETA_HOME', dirname( __FILE__ ) );
 
 		foreach ( $this->meta_types as $type ) {
 			foreach ( $this->meta_actions as $action ) {

@@ -1,6 +1,4 @@
-This document is for developers who wish to help out with WP-GeoMeta.
-
-For developers interested in using WP-GeoMeta in their own project, see the [DEVELOPERS.md](DEVELOPERS.md) file.
+This document is for developers who wish to work on WP-GeoMeta itself.
 
 Hackers
 =======

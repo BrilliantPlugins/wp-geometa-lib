@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) or die( 'No direct access' );
 
-$wp_geometa_version = '0.3.5'; // Also change down in wp_geometa_load_older_version()
+$wp_geometa_version = '0.3.0'; // Also change down in wp_geometa_load_older_version()
 
 /**
  * Gather some self metadata so that if WP-GeoMeta is included as a lib in multiple plugins
@@ -83,7 +83,7 @@ if ( ! function_exists( 'wp_geometa_load_older_version' ) ) {
 			$wpgeo = WP_GeoMeta::get_instance();
 			$wpgq = WP_GeoQuery::get_instance();
 
-			$wp_geometa_version = '0.3.5';
+			$wp_geometa_version = '0.3.0';
 			$wp_geometa_max_version = get_option( 'wp_geometa_version', '0.0.0' );
 			$wp_geometa_db_version = get_option( 'wp_geometa_db_version', '0.0.0' );
 

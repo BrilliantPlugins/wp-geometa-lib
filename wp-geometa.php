@@ -123,14 +123,6 @@ class WP_GeoMeta {
 		$charset_collate = $wpdb->get_charset_collate();
 		$max_index_length = 191;
 
-		$drop_indexes = array();
-		$add_indexes = array();
-
-		foreach ( $this->meta_types as $type ) {
-			$drop_indexes[] = 'DROP INDEX meta_val_spatial_idx ON ' . _get_meta_table( $type ) . '_geo';
-			$add_indexes[] = 'CREATE SPATIAL INDEX meta_val_spatial_idx ON ' . _get_meta_table( $type ) . '_geo (meta_value);';
-		}
-
 		/*
 			Only MyISAM supports spatial indexes, at least in MySQL older versions.
 			Spatial indexes can only contain non-null columns.
@@ -195,18 +187,19 @@ class WP_GeoMeta {
 		$suppress = $wpdb->suppress_errors( true );
 		$errors = $wpdb->show_errors( false );
 
-		foreach ( $drop_indexes as $index ) {
-			$wpdb->query( $index ); // @codingStandardsIgnoreLine
-}
+		foreach ( $this->meta_types as $type ) {
+			$show_index		= 'SHOW INDEX FROM ' . _get_meta_table( $type ) . '_geo WHERE Key_name=\'meta_val_spatial_idx\';';
+			// $drop_index	= 'DROP INDEX meta_val_spatial_idx ON ' . _get_meta_table( $type ) . '_geo;';
+			$add_index	= 'CREATE SPATIAL INDEX meta_val_spatial_idx ON ' . _get_meta_table( $type ) . '_geo (meta_value);'; 
+
+			$found_query = $wpdb->query( $show_index );
+			if ( $found_query === 0 ) {
+				$wpdb->query( $add_index );
+			}
+		}
 
 		$wpdb->suppress_errors( $suppress );
 		$wpdb->show_errors( $errors );
-
-		foreach ( $add_indexes as $index ) {
-			// @codingStandardsIgnoreStart
-			$wpdb->query( $index );
-			// @codingStandardsIgnoreEnd
-		}
 	}
 
 	/**
@@ -457,7 +450,7 @@ array(
 	 * @param string $longitude_name The name of the longitude meta field.
 	 * @param string $geojson_name The name of the geojson meta field to put in the meta table.
 	 */
-	public function add_latlng_field( $latitude_name, $longitude_name, $geojson_name ) {
+	public static function add_latlng_field( $latitude_name, $longitude_name, $geojson_name ) {
 		$idx = count( WP_GeoMeta::$latlngs );
 		WP_GeoMeta::$latlngs[] = array(
 			'lat' => $latitude_name,

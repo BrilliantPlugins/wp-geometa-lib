@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) or die( 'No direct access' );
 
-$wp_geometa_version = '0.3.0'; // Also change down in wp_geometa_load_older_version()
+$wp_geometa_version = '0.3.5'; // Also change down in wp_geometa_load_older_version()
 
 /**
  * Gather some self metadata so that if WP-GeoMeta is included as a lib in multiple plugins
@@ -30,12 +30,15 @@ $wp_geometa_db_version = get_option( 'wp_geometa_db_version', '0.0.0' );
  */
 $wp_geometa_version_status = version_compare( $wp_geometa_version, $wp_geometa_max_version );
 
+
+// If our version is higher than the version in wp_options, then bump the DB version 
+// so that our verison will be the one to load next time.
 if ( 1 === $wp_geometa_version_status ) {
-	// This will cause our version to get loaded next time.
 	update_option( 'wp_geometa_version', $wp_geometa_version );
 } 
 
-if ( 0 === $wp_geometa_version_status || '0.0.0' === $wp_geometa_max_version ) {
+// If our version is equal or higher to the db version, try to load our instance
+if ( 0 >= $wp_geometa_version_status || '0.0.0' === $wp_geometa_max_version ) {
 
 	// Other instances of WP_GeoMeta shouldn't have loaded these classes
 	// unless they're the same version as this instance.
@@ -80,7 +83,7 @@ if ( ! function_exists( 'wp_geometa_load_older_version' ) ) {
 			$wpgeo = WP_GeoMeta::get_instance();
 			$wpgq = WP_GeoQuery::get_instance();
 
-			$wp_geometa_version = '0.3.0';
+			$wp_geometa_version = '0.3.5';
 			$wp_geometa_max_version = get_option( 'wp_geometa_version', '0.0.0' );
 			$wp_geometa_db_version = get_option( 'wp_geometa_db_version', '0.0.0' );
 

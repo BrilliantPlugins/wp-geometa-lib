@@ -374,7 +374,7 @@ class WP_GeoUtil {
 				if ( 0 === strpos( $wkt, 'POINT' ) ) {
 					$wkt = preg_replace( '@^POINT@','MULTIPOINT', $wkt );
 				} else if ( 0 === strpos( $wkt, 'LINE' ) || 0 === strpos( $wkt, 'POLYGON' ) ) {
-					$wkt = preg_replace( '@^(LINE|POLYGON)(\s*)(\(.*?\))@','MULTI$1$2($3)', $wkt );
+					$wkt = preg_replace( '@^(LINE|POLYGON)(\s*)(\(.*?\)[^,])@','MULTI$1$2($3)', $wkt );
 				}
 			}
 

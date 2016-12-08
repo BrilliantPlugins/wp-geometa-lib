@@ -212,6 +212,17 @@ class WP_GeoUtil {
 		'Within',
 		'X',
 		'Y',
+		'WP_Buffer_Point_M',
+:q
+		'WP_Buffer_Point_Mi',
+		'WP_Buffer_Point_Real',
+		'WP_Distance_Point_M',
+		'WP_Distance_Point_Mi',
+		'WP_Distance_Point_Real',
+		'WP_Point_Bearing_Distance_To_Line',
+		'WP_Point_Bearing_Distance_To_Line_M',
+		'WP_Point_Bearing_Distance_To_Line_Mi',
+		'WP_Point_Bearing_Distance_Coord_Pair',
 		);
 
 	/**
@@ -246,9 +257,18 @@ class WP_GeoUtil {
 
 	/**
 	 * Load in the SRID after plugins are loaded.
+	 * Check for any additional capabilities after plugins are loaded.
 	 */
 	public static function plugins_loaded() {
 		WP_GeoUtil::$srid = apply_filters( 'wp_geoquery_srid', 4326 );
+
+		$orig_funcs = array_map('strtolower',WP_GeoUtil::$all_funcs);
+		WP_GeoUtil::$all_funcs = apply_filters( 'wpgq_known_capabilities', WP_GeoUtil::$all_funcs);
+		$new_funcs = array_map('strtolower',WP_GeoUtil::$all_funcs);
+		$diff = array_diff( $new_funcs, $orig_funcs );
+		if ( count( $diff ) > 0 ) {
+			WP_GeoUtil::get_capabilities( true, false );
+		}
 	}
 
 	/**
@@ -496,7 +516,21 @@ class WP_GeoUtil {
 		$suppress = $wpdb->suppress_errors( true );
 		$errors = $wpdb->show_errors( false );
 
+		// Reset it before adding stuff!
+		self::$found_funcs = array();
+
 		foreach ( WP_GeoUtil::$all_funcs as $func ) {
+
+			// First, check to see if a custom function exists
+			$q = "SELECT IF( COUNT(*) = 0, 'F' , 'T' ) AS ProcedureExists FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{$wpdb->dbname}' AND ROUTINE_TYPE = 'FUNCTION' AND UCASE(ROUTINE_NAME) = UCASE('$func');";
+			$custom_func = $wpdb->get_var( $q );
+
+			if ( 'T' === $custom_func ) {
+				self::$found_funcs[] = $func;
+				continue;
+			}
+
+			// Otherwise check if it's a built-in
 			$q = "SELECT $func() AS worked";
 			$wpdb->query( $q ); // @codingStandardsIgnoreLine
 

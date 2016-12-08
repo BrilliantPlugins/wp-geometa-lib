@@ -200,6 +200,28 @@ class WP_GeoMeta {
 
 		$wpdb->suppress_errors( $suppress );
 		$wpdb->show_errors( $errors );
+
+		// These files add extra SQL support
+		$extra_sql = array( 'buffer_point.sql' , 'distance_point.sql', 'point_bearing_distance.sql' );
+		foreach( $extra_sql as $sql_file ) {
+			$sql_code = file_get_contents( __DIR__ . '/sql/' . $sql_file );
+			// $sql_code = preg_replace('DELIMITER.*','',$sql_code );
+			$sql_code = explode('$$', $sql_code);
+			$sql_code = array_map('trim',$sql_code);
+			$sql_code = array_filter($sql_code, function($statement){
+				if ( empty( $statement ) ) {
+					return false;
+				}
+				if ( strpos($statement, 'DELIMITER') !== FALSE ) {
+					return false;
+				}
+				return true;
+			});
+			foreach( $sql_code as $statement ) {
+				$res = $wpdb->query( $statement );
+				$a = 1;
+			}
+		}
 	}
 
 	/**
@@ -423,12 +445,8 @@ array(
 				ORDER BY $metatable.$meta_pkey
 				LIMIT 100";
 				
-				print $q . "\n\n";
-
 				$res = $wpdb->get_results( $q,ARRAY_A ); // @codingStandardsIgnoreLine
 				$found_rows = count( $res );
-
-				print $found_rows . "\n";
 
 				foreach ( $res as $row ) {
 					$geometry = WP_GeoUtil::metaval_to_geom( $row['meta_value'] );
@@ -553,7 +571,7 @@ array(
 				`pm`.`meta_key`,
 				`pm`.`' . $type . '_id` AS `obj_id`,';
 
-			$query .= ( 'user' === $type ? '`pm`.`umeta_id`' : '`pm`.`meta_id`,' );
+			$query .= ( 'user' === $type ? ' `pm`.`umeta_id`, ' : ' `pm`.`meta_id`, ' );
 
 			$query .= '`pm`.`meta_value` AS `lat`,	
 				COALESCE(' . $pmtables . ') AS `lng`

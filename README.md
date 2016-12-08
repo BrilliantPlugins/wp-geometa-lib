@@ -464,6 +464,37 @@ Hooks: Filters and Actions
 	}
  ```
 
+ * *Filter*: wpgq_known_capabilities
+
+ This filter is available so you can make your custom MySQL functions known to other users of WP-GeoMeta-Lib. 
+ Your function will be included in the list returned by `WP_GeoUtil::get_capabilities()`, if it is in fact available
+ in MySQL.
+
+ You can also use it to detect if an optional library is installed. 
+
+ NOTE: 
+ During your plugin activation you should run `WP_GeoUtil::get_capabilities( true );`, otherwise
+ the cached list of capabilites will continue to be used.
+
+ Usage: 
+ ```
+	add_filter( 'wpgq_known_capabilities', 'myplugin_add_support_for_my_func' );
+
+	function myplugin_add_support_for_my_func( $all_funcs ) {
+		$all_funcs[] = 'my_custom_mysql_function';
+		return $all_funcs;
+	}
+
+	// ... later ...
+
+	$all_caps = WP_GeoUtil::get_capabilities();
+	if ( in_array( 'my_custom_mysql_function', $all_caps ) ) {
+		// Do my stuff
+	} else {
+		// Notify the admin
+	}
+ ```
+
  * *Action*: wpgm_populate_geo_tables
 
  This action is called at the end of WP_GeoMeta->populate_geo_tables() to give you
@@ -491,6 +522,7 @@ Hooks: Filters and Actions
 		}
 	}
  ```
+
 
 
 Why WP-GeoMeta?

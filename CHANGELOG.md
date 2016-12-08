@@ -1,6 +1,11 @@
 Changes
 -------
 
+### 0.3.1
+ * Support for custom MySQL functions (User Defined Functions and stored functions).
+ * Built-in support for some functions which may be useful for working with Lat/Lng distances and bearings.
+ * Fixed issue where duplicate function names would appear in get_capabilities result set.
+
 ### 0.3.0: Blue Blazer Irregulars
  * Separated core functionality into a library
 

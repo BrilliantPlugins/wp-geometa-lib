@@ -60,10 +60,13 @@ BEGIN
 	DECLARE lat1 FLOAT;
 	DECLARE lon1 FLOAT;
 	DECLARE tc FLOAT;
+	DECLARE geom GEOMETRY;
+
+	SET geom = wp_first_geom( p );
 
 	SET d = distance / eradius;
-	SET lat1 = RADIANS( Y(p) );
-	SET lon1 = RADIANS( X(p) );
+	SET lat1 = RADIANS( Y(geom) );
+	SET lon1 = RADIANS( X(geom) );
 	SET tc = RADIANS( bearing );
 
 	-- http://williams.best.vwh.net/avform.htm#LL

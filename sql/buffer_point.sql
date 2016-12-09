@@ -34,7 +34,7 @@ BEGIN
 	DECLARE firstcoords VARCHAR(100);
 	DECLARE curcoords VARCHAR(100);
 
-	SET step = 360 / segments; -- our loop increment value
+	SET step = 360 / ( segments * 4 ); -- our loop increment value
 	SET degrees = 0; -- our starting point for our loop
 	SET polygonstring = 'POLYGON(('; -- Our output
 

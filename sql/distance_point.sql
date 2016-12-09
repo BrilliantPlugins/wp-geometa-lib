@@ -22,9 +22,12 @@ CREATE FUNCTION wp_distance_point_real(p1 POINT, p2 POINT, radius FLOAT) RETURNS
 NO SQL DETERMINISTIC
 BEGIN
 
+
 	DECLARE lat1 FLOAT;
 	DECLARE lat2 FLOAT;
 	DECLARE deltalon FLOAT;
+	DECLARE geom1 GEOMETRY;
+	DECLARE geom2 GEOMETRY;
 
 	-- http://www.movable-type.co.uk/scripts/latlong.html
 	-- var φ1 = lat1.toRadians()
@@ -33,9 +36,12 @@ BEGIN
 	-- R = 6371e3; // gives d in metres
 	-- var d = Math.acos( Math.sin(φ1)*Math.sin(φ2) + Math.cos(φ1)*Math.cos(φ2) * Math.cos(Δλ) ) * R;
 
-	SET lat1 = RADIANS( Y( p1 ) );
-	SET lat2 = RADIANS( Y( p2 ) );
-	SET deltalon = RADIANS( X( p2 ) - X( p1 ) );
+	SET geom1 = wp_first_geom( p1 );
+	SET geom2 = wp_first_geom( p2 );
+
+	SET lat1 = RADIANS( Y( geom1 ) );
+	SET lat2 = RADIANS( Y( geom2 ) );
+	SET deltalon = RADIANS( X( geom2 ) - X( geom1 ) );
 
 	RETURN ACOS( SIN( lat1 ) * SIN( lat2 ) + COS( lat1 ) * COS( lat2 ) * COS( deltalon ) ) * radius; 
 END$$

@@ -28,7 +28,7 @@ What's Included
 	for the earth, you can use wp_buffer_point_real.
 
 	These buffer functions return polygons, not actual circles. You can determine how many
-	points the polygon contains with the segments argument. PostGIS defaults to 32.
+	points the polygon contains in each quarter of a circle with the segments argument. PostGIS defaults to 8.
 
 	- wp_buffer_point_m(p POINT, radius FLOAT, segments INT) RETURNS POLYGON
 	- wp_buffer_point_mi(p POINT, radius FLOAT, segments INT) RETURNS POLYGON

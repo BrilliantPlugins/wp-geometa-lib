@@ -202,7 +202,7 @@ class WP_GeoMeta {
 		$wpdb->show_errors( $errors );
 
 		// These files add extra SQL support
-		$extra_sql = array( 'buffer_point.sql' , 'distance_point.sql', 'point_bearing_distance.sql' );
+		$extra_sql = array( 'first_geometry.sql', 'buffer_point.sql' , 'distance_point.sql', 'point_bearing_distance.sql' );
 		foreach( $extra_sql as $sql_file ) {
 			$sql_code = file_get_contents( __DIR__ . '/sql/' . $sql_file );
 			// $sql_code = preg_replace('DELIMITER.*','',$sql_code );

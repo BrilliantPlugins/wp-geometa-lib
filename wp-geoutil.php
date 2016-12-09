@@ -213,7 +213,6 @@ class WP_GeoUtil {
 		'X',
 		'Y',
 		'WP_Buffer_Point_M',
-:q
 		'WP_Buffer_Point_Mi',
 		'WP_Buffer_Point_Real',
 		'WP_Distance_Point_M',
@@ -339,7 +338,7 @@ class WP_GeoUtil {
 	 *
 	 * @return A WKT geometry string.
 	 */
-	public static function metaval_to_geom( $metaval = '' ) {
+	public static function metaval_to_geom( $metaval = '', $create_feature_collection = true ) {
 		$metaval = maybe_unserialize( $metaval );
 
 		// Let other plugins support non GeoJSON geometry.
@@ -370,7 +369,7 @@ class WP_GeoUtil {
 		$metaval = self::merge_geojson( $metaval );
 
 		if ( false === $metaval ) {
-			return;
+			return false;
 		}
 
 		// Convert GeoJSON to WKT.
@@ -554,5 +553,61 @@ class WP_GeoUtil {
 	public static function get_srid() {
 		return self::$srid;
 	}
+
+	/**
+	 * Support calling any geometry function.
+	 *
+	 * eg. 
+	 * WP_GeoUtil::Buffer( $geometry, $distance);
+	 */
+	public static function __callStatic( $name, $arguments ) {
+		if ( in_array( strtolower( $name ), self::get_capabilities() ) ) {
+			return self::run_spatial_query( $name, $arguments );
+		}
+	}
+
+	/**
+	 * Run the actual spatial query
+	 *
+	 * Any geometries should be GeoJSON.
+	 *
+	 * Geometry responses will be returned as GeoJSON
+	 */
+	private static function run_spatial_query( $name, $arguments = array() ) {
+		global $wpdb;
+
+		if ( empty($arguments ) ) {
+			return false;
+		}
+
+		$q = 'SELECT ' . $name . '(';
+		foreach( $arguments as $idx => $arg ) {
+
+			if ( $idx > 0 ) {
+				$q .= ',';
+			}
+
+			$maybe_geom = self::metaval_to_geom( $arg );
+			if ( $maybe_geom !== false ) {
+				$arguments[$idx] = $maybe_geom;
+				$q .= 'GeomCollFromText(%s)';
+			} else {
+				$q .= '%s';
+			}
+		}
+		$q .= ')';
+
+		$sql = $wpdb->prepare( $q, $arguments );
+
+		$res = $wpdb->get_var( $sql );
+
+		$maybe_geojson = self::geom_to_geojson( $res );
+		if ( $maybe_geojson !== false ) {
+			return json_decode( $maybe_geojson, true );
+		} 
+
+		return $res;
+	}
 }
+
 WP_GeoUtil::get_instance();

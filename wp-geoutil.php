@@ -569,9 +569,11 @@ class WP_GeoUtil {
 	/**
 	 * Run the actual spatial query
 	 *
-	 * Any geometries should be GeoJSON.
+	 * Any geometries should be GeoJSON compatible
 	 *
 	 * Geometry responses will be returned as GeoJSON
+	 *
+	 * Other responses will be returned as is
 	 */
 	private static function run_spatial_query( $name, $arguments = array() ) {
 		global $wpdb;
@@ -597,13 +599,15 @@ class WP_GeoUtil {
 		}
 		$q .= ')';
 
-		$sql = $wpdb->prepare( $q, $arguments );
+		$real_q = 'SELECT IF( GeometryType( retval ) IS NULL, retval, AsText( retval ) ) AS res FROM ( ' . $q . ' AS retval ) rq';
+
+		$sql = $wpdb->prepare( $real_q, $arguments );
 
 		$res = $wpdb->get_var( $sql );
 
 		$maybe_geojson = self::geom_to_geojson( $res );
 		if ( $maybe_geojson !== false ) {
-			return json_decode( $maybe_geojson, true );
+			return $maybe_geojson;
 		} 
 
 		return $res;

@@ -10,7 +10,7 @@ CREATE FUNCTION wp_first_geom(p GEOMETRY) RETURNS GEOMETRY
 
 NO SQL DETERMINISTIC
 
-COMMENT 'Given a starting point, bearing, and distance in meters, create a linestring'
+COMMENT 'Return the first geometry if a multi-geometry is added, otherwise return the geometry'
 
 BEGIN
 	IF ( GeometryType( p ) = 'MULTIPOINT' || GeometryType( p ) = 'MULTILINESTRING' || GeometryType( p ) = 'MULTIPOLYGON' || GeometryType( p ) = 'GEOMETRYCOLLECTION' ) THEN

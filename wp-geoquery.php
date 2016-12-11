@@ -216,7 +216,7 @@ class WP_GeoQuery {
 
 		// If we have a geometry for our value, then we're doing a two-geometry function that returns a boolean.
 		$meta_value = ( array_key_exists( 'value', $meta_query ) ? $meta_query['value'] : '' );
-		$geometry = WP_GeoUtil::metaval_to_geom( $meta_value );
+		$geometry = WP_GeoUtil::metaval_to_geom( $meta_value, true );
 		if ( ! empty( $geometry ) ) {
 			$new_meta_value = "{$meta_query['compare']}( meta_value,GeomFromText( %s, %d ) )";
 			$new_meta_value = $wpdb->prepare( $new_meta_value, array( $geometry, WP_GeoUtil::get_srid() ) ); // @codingStandardsIgnoreLine

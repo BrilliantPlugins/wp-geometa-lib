@@ -218,6 +218,7 @@ class WP_GeoUtil {
 		'WP_Distance_Point_M',
 		'WP_Distance_Point_Mi',
 		'WP_Distance_Point_Real',
+		'WP_First_Geom',
 		'WP_Point_Bearing_Distance_To_Line',
 		'WP_Point_Bearing_Distance_To_Line_M',
 		'WP_Point_Bearing_Distance_To_Line_Mi',
@@ -332,24 +333,20 @@ class WP_GeoUtil {
 	}
 
 	/**
-	 * We're going to support single GeoJSON features and FeatureCollections in either string, object or array format.
+	 * Convert a metaval to GeoJSON
 	 *
-	 * @param mixed $metaval The meta value to try to convert to WKT.
-	 *
-	 * @return A WKT geometry string.
+	 * @param anything $metaval The value to turn into GeoJSON.
+	 * @param string $return_type The supported types are 'string' and 'array'.
 	 */
-	public static function metaval_to_geom( $metaval = '', $create_feature_collection = true ) {
+	public static function metaval_to_geojson( $metaval, $return_type = 'string' ) {
 		$metaval = maybe_unserialize( $metaval );
 
-		// Let other plugins support non GeoJSON geometry.
-		$maybe_geom = apply_filters( 'wpgq_metaval_to_geom', $metaval );
-
-		if ( empty( $metaval ) ) {
+		if ( self::is_geojson( $metaval ) ) {
 			return $metaval;
 		}
 
-		if ( self::is_geom( $maybe_geom ) ) {
-			return $maybe_geom;
+		if ( empty( $metaval) ) {
+			return false;
 		}
 
 		// Exit early if we're a non-GeoJSON string.
@@ -366,7 +363,46 @@ class WP_GeoUtil {
 			$metaval = (array) $metaval;
 		}
 
-		$metaval = self::merge_geojson( $metaval );
+		// Last check!
+		$string_metaval = wp_json_encode( $metaval );
+
+		if ( !self::is_geojson( $metaval ) ) {
+			return false;
+		}
+
+		if ( 'string' === $return_type ) {
+			return $string_metaval;
+		} else if ( 'array' === $return_type ) {
+			return $metaval;
+		}
+	}
+
+	/**
+	 * We're going to support single GeoJSON features and FeatureCollections in either string, object or array format.
+	 *
+	 * @param mixed $metaval The meta value to try to convert to WKT.
+	 * @param bool $force_multi Should the value be turned into a MULTI type geometry? Default is false. This is set to true by WP-GeoMeta before storing values in the database.
+	 *
+	 * @return A WKT geometry string.
+	 */
+	public static function metaval_to_geom( $metaval = false, $force_multi = false) {
+
+		$maybe_geom = apply_filters( 'wpgq_metaval_to_geom', $metaval );
+		if ( self::is_geom( $maybe_geom ) ) {
+			return $maybe_geom;
+		}
+
+		// Everything becomes GeoJSON so that the rest of this function will be simpler
+		$make_string = ( $force_multi ? 'string' : 'array' );
+		$metaval = self::metaval_to_geojson( $metaval, $make_string );
+
+		if ( $metaval === false ) {
+			return $metaval;
+		}
+		
+		if ( $force_multi ) {
+			$metaval = self::merge_geojson( $metaval );
+		}
 
 		if ( false === $metaval ) {
 			return false;
@@ -389,7 +425,7 @@ class WP_GeoUtil {
              * MUTLI all the things because MySQL 5.7 (at least, maybe others) doesn't
              * like Geometry in GeometryCollection columns.
 			 */
-			if ( false === strpos( $wkt, 'MULTI' ) ) {
+			if ( $force_multi && false === strpos( $wkt, 'MULTI' ) ) {
 				if ( 0 === strpos( $wkt, 'POINT' ) ) {
 					$wkt = preg_replace( '@^POINT@','MULTIPOINT', $wkt );
 				} else if ( 0 === strpos( $wkt, 'LINE' ) || 0 === strpos( $wkt, 'POLYGON' ) ) {
@@ -470,9 +506,21 @@ class WP_GeoUtil {
 	 * Check if a value is in GeoJSON, which is our code-ready forma.
 	 *
 	 * @param anything $maybe_geojson Check if a value is GeoJSON or not.
+	 * @param bool $string_only Should GeoJSON compatible strings and objects be counted as GeoJSON? Default is false (allow arrays/objects).
+	 *
+	 * @return boolean
 	 */
-	public static function is_geojson( $maybe_geojson ) {
+	public static function is_geojson( $maybe_geojson, $string_only = false ) {
 		try {
+
+			if ( !is_string( $maybe_geojson ) && $string_only ) {
+				return false;
+			}
+
+			if ( is_array( $maybe_geojson ) || is_object( $maybe_geojson ) ) {
+				$maybe_geojson = json_encode( $maybe_geojson );
+			}
+
 			$what = self::$geojson->read( (string) $maybe_geojson );
 			if ( null !== $what ) {
 				return true;

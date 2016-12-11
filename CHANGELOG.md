@@ -5,6 +5,9 @@ Changes
  * Support for custom MySQL functions (User Defined Functions and stored functions).
  * Built-in support for some functions which may be useful for working with Lat/Lng distances and bearings.
  * Fixed issue where duplicate function names would appear in get_capabilities result set.
+ * Broke out WP_GeoUtil::geom_to_geojson() to its own function. 
+ * Enhancements to WP_GeoUtil::is_geojson()
+ * WP_GeoUtil::metaval_to_geom() no longer converts geometry from single to multi automatically. 
 
 ### 0.3.0: Blue Blazer Irregulars
  * Separated core functionality into a library

@@ -189,7 +189,6 @@ class WP_GeoMeta {
 
 		foreach ( $this->meta_types as $type ) {
 			$show_index		= 'SHOW INDEX FROM ' . _get_meta_table( $type ) . '_geo WHERE Key_name=\'meta_val_spatial_idx\';';
-			// $drop_index	= 'DROP INDEX meta_val_spatial_idx ON ' . _get_meta_table( $type ) . '_geo;';
 			$add_index	= 'CREATE SPATIAL INDEX meta_val_spatial_idx ON ' . _get_meta_table( $type ) . '_geo (meta_value);'; 
 
 			$found_query = $wpdb->query( $show_index );
@@ -238,6 +237,25 @@ class WP_GeoMeta {
 			$wpdb->query( $drop ); // @codingStandardsIgnoreLine
 		}
 
+		$extra_sql = array( 'first_geometry.sql', 'buffer_point.sql' , 'distance_point.sql', 'point_bearing_distance.sql' );
+
+		foreach( $extra_sql as $sql_file ) {
+			$sql_code = file_get_contents( __DIR__ . '/sql/' . $sql_file );
+			// $sql_code = preg_replace('DELIMITER.*','',$sql_code );
+			$sql_code = explode('$$', $sql_code);
+			$sql_code = array_map('trim',$sql_code);
+			$sql_code = array_filter($sql_code, function($statement){
+				if ( strpos($statement, 'DROP FUNCTION') === FALSE ) {
+					return false;
+				}
+				return true;
+			});
+			foreach( $sql_code as $statement ) {
+				$res = $wpdb->query( $statement );
+				$a = 1;
+			}
+		}
+
 		$wpdb->suppress_errors( $suppress );
 		$wpdb->show_errors( $errors );
 	}
@@ -283,7 +301,7 @@ class WP_GeoMeta {
 			$geometry = false;
 		} else {
 			$arguments = apply_filters( 'wpgm_pre_metaval_to_geom', $arguments, $type );
-			$geometry = WP_GeoUtil::metaval_to_geom( $arguments[3] );
+			$geometry = WP_GeoUtil::metaval_to_geom( $arguments[3], true );
 			$arguments[3] = $geometry;
 		}
 
@@ -449,7 +467,7 @@ array(
 				$found_rows = count( $res );
 
 				foreach ( $res as $row ) {
-					$geometry = WP_GeoUtil::metaval_to_geom( $row['meta_value'] );
+					$geometry = WP_GeoUtil::metaval_to_geom( $row['meta_value'], true );
 					if ( $geometry ) {
 						$this->upsert_meta( $meta_type,$row[ $meta_pkey ],$row[ $meta_type . '_id' ],$row['meta_key'],$geometry );
 					}

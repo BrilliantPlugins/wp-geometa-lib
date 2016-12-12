@@ -389,8 +389,7 @@ class WP_GeoUtil {
 		}
 
 		// Everything becomes GeoJSON so that the rest of this function will be simpler
-		$make_string = ( $force_multi ? 'string' : 'array' );
-		$metaval = self::metaval_to_geojson( $metaval, $make_string );
+		$metaval = self::metaval_to_geojson( $metaval, 'string' );
 
 		if ( $metaval === false ) {
 			return $metaval;
@@ -467,11 +466,14 @@ class WP_GeoUtil {
 
 		try {
 			$geom = self::$geowkt->read( $maybe_geojson );
-			return self::$geojson->write( $geom );
+			$geojson = self::$geojson->write( $geom );
+		   	if ( strpos( $maybe_geojson, '{' ) === false || strpos( $maybe_geojson, 'Feature' ) === false || strpos( $maybe_geojson, 'geometry' ) === false ) {
+				$geojson = '{"type":"Feature","geometry":' . $geojson . ',"properties":{}}';
+			}
+			return $geojson;
 		} catch ( Exception $e ) {
 			return false;
 		}
-
 	}
 
 	/**

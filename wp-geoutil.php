@@ -339,23 +339,19 @@ class WP_GeoUtil {
 	 * @param string $return_type The supported types are 'string' and 'array'.
 	 */
 	public static function metaval_to_geojson( $metaval, $return_type = 'string' ) {
-		$metaval = maybe_unserialize( $metaval );
 
-		if ( self::is_geojson( $metaval ) ) {
-			return $metaval;
-		}
-
+		// Quick exit
 		if ( empty( $metaval) ) {
 			return false;
 		}
 
-		// Exit early if we're a non-GeoJSON string.
-		if ( is_string( $metaval ) ) {
-		   	if ( strpos( $metaval,'{' ) === false || strpos( $metaval,'Feature' ) === false || strpos( $metaval,'geometry' ) === false ) {
-				return false;
-			} else {
-				$metaval = json_decode( $metaval,true );
-			}
+		// Could be a serialized array
+		$metaval = maybe_unserialize( $metaval );
+
+		// If we've been asked for a string and it's a GeoJSON string, 
+		// we can just return now.
+		if ( self::is_geojson( $metaval, ( 'string' === $return_type ) ) ) {
+			return $metaval;
 		}
 
 		// If it's an object, cast it to an array for consistancy.
@@ -366,7 +362,7 @@ class WP_GeoUtil {
 		// Last check!
 		$string_metaval = wp_json_encode( $metaval );
 
-		if ( !self::is_geojson( $metaval ) ) {
+		if ( !self::is_geojson( $string_metaval, 'true' ) ) {
 			return false;
 		}
 
@@ -521,7 +517,12 @@ class WP_GeoUtil {
 				$maybe_geojson = json_encode( $maybe_geojson );
 			}
 
+		   	if ( strpos( $maybe_geojson, '{' ) === false || strpos( $maybe_geojson, 'Feature' ) === false || strpos( $maybe_geojson, 'geometry' ) === false ) {
+				return false;
+			} 
+
 			$what = self::$geojson->read( (string) $maybe_geojson );
+
 			if ( null !== $what ) {
 				return true;
 			} else {

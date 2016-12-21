@@ -91,12 +91,12 @@ There are three styles of queries supported, to cover three different classes of
 
 1. Query comparing geometries
 
-This style of query is for all spatial functions which accept two geometries as arguments and which 
-return a boolean as a result. For example ST_INTERSECTS, CONTAINS or MBROverlaps. 
-
-The meta_query _compare_ is the function to use, and the _value_ should be a GeoJSON representation
-of the geometry to use for the second argument. The geometry meta field indicated by the _key_ parameter
-will be used as the first argument to the _compare_ function.
+ This style of query is for all spatial functions which accept two geometries as arguments and which 
+ return a boolean as a result. For example ST_INTERSECTS, CONTAINS or MBROverlaps. 
+ 
+ The meta_query _compare_ is the function to use, and the _value_ should be a GeoJSON representation
+ of the geometry to use for the second argument. The geometry meta field indicated by the _key_ parameter
+ will be used as the first argument to the _compare_ function.
 
     $q = new WP_Query( array(
     	'meta_query' => array(
@@ -115,10 +115,10 @@ will be used as the first argument to the _compare_ function.
 
 2. Query geometry properties
 
-This style of query is for all spatial functions which accept a single geometry as an argument and
-which return a boolean as a result. For example ST_IsSimple, IsClosed or ST_IsEmpty.
-
-The _compare_ argument should be the function just like above, but no value is needed.
+ This style of query is for all spatial functions which accept a single geometry as an argument and
+ which return a boolean as a result. For example ST_IsSimple, IsClosed or ST_IsEmpty.
+ 
+ The _compare_ argument should be the function just like above, but no value is needed.
 
     $q = new WP_Query(array( 
     	'meta_query' => array( 
@@ -130,15 +130,15 @@ The _compare_ argument should be the function just like above, but no value is n
 
 3. Compare the results of geometry functions
 
-This style of query is for spatial functions which accept a single geometry as an argument but return
-a non-boolean response. For example, GLength, ST_Area or ST_SRID.
-
-In these queries you may want to use a normal meta_query comparison (=, >, BETWEEN, etc.) but against
-the result of a spatial function. To accomodate this type of case, you will need to add an additional
-parameter _geom_op_. 
-
-The _key_, _compare_ and _value_ are used in the regular WP_Query way, but the comparison will be 
-made against the result of applying the geometry function to the spatial metadata specified.
+ This style of query is for spatial functions which accept a single geometry as an argument but return
+ a non-boolean response. For example, GLength, ST_Area or ST_SRID.
+ 
+ In these queries you may want to use a normal meta_query comparison (=, >, BETWEEN, etc.) but against
+ the result of a spatial function. To accomodate this type of case, you will need to add an additional
+ parameter _geom_op_. 
+ 
+ The _key_, _compare_ and _value_ are used in the regular WP_Query way, but the comparison will be 
+ made against the result of applying the geometry function to the spatial metadata specified.
 
     $q = new WP_Query(array(
     	'meta_query' => array(

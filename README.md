@@ -531,7 +531,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 
  The functions included are: 
 
- * *wp_buffer_point_m( p POINT, radius FLOAT, segments INT)*
+ * **wp_buffer_point_m( p POINT, radius FLOAT, segments INT)**
 
 	Buffer a point by a number of meters. Returns a polygon approximating a circle.
 
@@ -539,7 +539,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 	- _radius_ The distance to buffer the point, in meters.
 	- _segments_ The number of segments per quarter of a circle. Eg. If you set this to 4, then your resulting polygon will have 16 segments.
 
- * *wp_buffer_point_mi( p POINT, radius FLOAT, segments INT)*
+ * **wp_buffer_point_mi( p POINT, radius FLOAT, segments INT)**
 
 	Buffer a point by a number of miles. Returns a polygon approximating a circle.
 
@@ -547,7 +547,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 	- _radius_ The distance to buffer the point, in miles.
 	- _segments_ The number of segments per quarter of a circle. Eg. If you set this to 4, then your resulting polygon will have 16 segments.
 
- * *wp_buffer_point_real( p POINT, radius FLOAT, segments INT, eradius INTEGER)*
+ * **wp_buffer_point_real( p POINT, radius FLOAT, segments INT, eradius INTEGER)**
 
 	Buffer a point assuming an earth with a specified radius. Returns a polygon approximating a circle.
 
@@ -556,21 +556,21 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 	- _segments_ The number of segments per quarter of a circle. Eg. If you set this to 4, then your resulting polygon will have 16 segments.
 	- _eradius_ The radius of the earth in the same units as _radius_
 
- * *wp_distance_point_m( p1 POINT, p2 POINT)*
+ * **wp_distance_point_m( p1 POINT, p2 POINT)**
 	
 	Get the distance between two points in meters.
 
 	- _p1_ A single point geometry with coordinates in EPSG:4326.
 	- _p2_ A single point geometry with coordinates in EPSG:4326.
 
- * *wp_distance_point_mi( p1 POINT, p2 POINT)*
+ * **wp_distance_point_mi( p1 POINT, p2 POINT)**
 	
 	Get the distance between two points in miles.
 
 	- _p1_ A single point geometry with coordinates in EPSG:4326.
 	- _p2_ A single point geometry with coordinates in EPSG:4326.
 
- * *wp_distance_point_real( p1 POINT, p2 POINT, radius FLOAT)*
+ * **wp_distance_point_real( p1 POINT, p2 POINT, radius FLOAT)**
 
 	Get the distance between two points for a given radius of the earth.
 
@@ -578,13 +578,13 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 	- _p2_ A single point geometry with coordinates in EPSG:4326.
 	- _radius_ The radius of the earth in the units you want your results in.
 
- * *wp_first_geom( p GEOMETRY )*
+ * **wp_first_geom( p GEOMETRY )**
 
 	Get the first geometry from a multi-geometry. If _p_ is not a multi-geometry, it will be returned unchanged.
 
 	- _p_ A geometry object.
 
- * *wp_point_bearing_distance_to_line_m(p POINT, bearing FLOAT, distance FLOAT)*
+ * **wp_point_bearing_distance_to_line_m(p POINT, bearing FLOAT, distance FLOAT)**
 
 	Create a linestring given a starting point, a bearing and a distance in meters.
 
@@ -592,7 +592,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 	_bearing_ The bearing to travel in degrees. 0 degrees is north.
 	_distance_ The number of meters to travel.
 
- * *wp_point_bearing_distance_to_line_mi(p POINT, bearing FLOAT, distance FLOAT)*
+ * **wp_point_bearing_distance_to_line_mi(p POINT, bearing FLOAT, distance FLOAT)**
 
 	Create a linestring given a starting point, a bearing and a distance in miles.
 
@@ -600,7 +600,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 	_bearing_ The bearing to travel in degrees. 0 degrees is north.
 	_distance_ The number of miles to travel.
 
- * *wp_point_bearing_distance_to_line(p POINT, bearing FLOAT, distance FLOAT, eradius INTEGER)*
+ * **wp_point_bearing_distance_to_line(p POINT, bearing FLOAT, distance FLOAT, eradius INTEGER)**
 
 	Create a linestring given a starting point, a bearing, a distance and the radius of the earth.
 
@@ -610,7 +610,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 	_eradius_ The radius of the earth in the same units as _distance_.
 
 
- * *wp_point_bearing_distance_coord_pair(p POINT, bearing FLOAT, distance FLOAT, eradius INTEGER)*
+ * **wp_point_bearing_distance_coord_pair(p POINT, bearing FLOAT, distance FLOAT, eradius INTEGER)**
 
 	Get the point a given distance from a starting point on a given bearing for a given radius of the earth.
 

@@ -14,13 +14,15 @@ missing features, let us know!
 - [Usage](#usage)
     - [Writing and Reading Data](#writing-and-reading-data)
     - [Querying](#querying)
-        - [What spatial comparisons are supported?](#what-spatial-comparisons-are-supported)
+        - [Support Comparison Operations](#support-comparison-operations)
         - [ORDER BY](#order-by)
+    - [WordPress Hooks](#wordpress-hooks)
+        - [Filters](#filters)
+        - [Actions](#actions)
 - [Why WP-GeoMeta?](#why-wp-geometa)
     - [Integration with Other Plugins](#integration-with-other-plugins)
     - [Why not separate lat and long fields?](#why-not-separate-lat-and-long-fields)
     - [OK, fine, but I really need separate fields](#ok-fine-but-i-really-need-separate-fields)
-- [Hooks: Filters and Actions](#hooks-filters-and-actions)
 - [Important Notes](#important-notes)
 - [Server Requirements](#server-requirements)
     - [WordPress](#wordpress)
@@ -145,7 +147,7 @@ made against the result of applying the geometry function to the spatial metadat
     	)
     	))); 
 
-#### What spatial comparisons are supported?
+#### Support Comparison Operations
 
 Any spatial operation that takes two geometries and returns a boolean, 
 or which takes one geometry and returns a boolean or a value is
@@ -271,6 +273,232 @@ orderby with named meta clauses should work.
     		)
     	))); 
 
+
+### WordPress Hooks
+-------------------
+
+The power of WordPress come partly from its Hooks system. WP-GeoMeta-Lib tries to provide the neccessary hooks
+so that you can extend it to suit your needs. If there's a hook that you need send me a pull request or file an issue.
+
+#### Filters
+
+ * wpgm_pre_metaval_to_geom
+
+ This filter is called right before WP-GeoMeta tries to convert the incoming meta value 
+ to geometry. It is used internally to handle separate latitude and longitude values and
+ could be used to support other unusual situations. If you just need to convert a non-geojson
+ geometry to WKT, you should use wpgq_metaval_to_geom instead.
+
+ Usage:
+ ```
+	add_filter( 'wpgm_pre_metaval_to_geom', 'myplugin_handle_pre_metaval', 10, 2 );
+
+	/*
+	 * @param array  $meta_args Array with the meta_id that was just saved, the object_id it was for, the meta_key and meta_values used.
+	 *  $meta_args[0] -- meta_id from insert.
+	 *  $meta_args[1] -- object_id which this applies to.
+	 *  $meta_args[2] -- meta key.
+	 *  $meta_args[3] -- the meta value.
+	 *
+	 * @param string $object_type Which WP type is it? (comment/user/post/term).
+	 */
+	public static function handle_latlng_meta( $meta_args, $object_type ) {
+		// Return early if it's not the key we're looking for.
+		if ( 'special meta key' !== $meta_args[2] ) {
+			return $meta_args;
+		}
+
+		// Do some stuff, then return $meta_args.
+		return $meta_args;
+	}
+ ```
+
+ * wpgm_pre_delete_geometa
+
+ This filter is called after a meta value has been deleted from the regular meta table, right 
+ before WP-GeoMeta deletes the corresponding value from the geometa table. Deletions are 
+ done based on the regular meta table's meta ID. This filter is used internally to delete
+ the geo meta value when a latitude or longitude meta value is deleted from the non-geo 
+ meta tables. 
+
+ Usage:
+ ```
+	add_filter( 'wpgm_pre_delete_geometa', 'special_delete_scenario', 10, 5 );
+
+	/*
+	 * @param array  $meta_ids The Meta IDs that will be deleted.
+	 * @param string $type The type of object whose meta is being deleted.
+	 * @param int    $object_id The ID of the object whose meta is being deleted.
+	 * @param string $meta_key The name of the meta key which is being deleted.
+	 * @param string $meta_value The value which is being deleted.
+	 */
+	public function special_delete_scenario( $meta_ids, $type, $object_id, $meta_key, $meta_value ) {
+
+		if ( 'special meta key' !== $meta_key ) {
+			return $meta_ids;
+		}
+
+		// Do some stuff, then return $meta_ids;
+		return $meta_ids;
+	}
+ ```
+
+ * wp_geoquery_srid
+
+ This filter is called during plugins_loaded. It sets the [SRID](https://en.wikipedia.org/wiki/Spatial_reference_system) 
+ that will be used when storing values in the database. The default value is 4326 
+ (for EPSG:4326), which is the standard for GeoJSON. 
+
+ MySQL doesn't support ST_Transform, and will complain if two geometries being compared
+ have different SRIDs. As such, this option is dangerous and should be left alone unless 
+ you know what you're doing.
+
+ * wpgq_metaval_to_geom
+
+ This filter is called within WP_GeoUtil::metaval_to_geom. It offers an opportunity to 
+ support non-GeoJSON geometry types. 
+
+ Functions implementing this filter should either return the incoming $metaval untouched
+ or return WKT (best) or GeoJSON (will work).
+
+ Usage:
+ ```
+	add_filter( 'wpgq_metaval_to_geom', 'kml_to_geometry' );
+
+	/**
+	  * @param string $metaval The metavalue that we're about to store.
+	  */
+	function kml_to_geometry( $metaval ) {
+
+		if ( !is_kml( $metaval ) ) {
+			return $metaval;
+		}
+
+		$wkt = kml_to_wkt( $metaval );
+
+		return $wkt;
+	}
+ ```
+
+ * wpgq_geom_to_geojson
+
+ This filter is called when converting a geometry from the database into GeoJSON
+ so it can be displayed on a map (or whatever). 
+
+ This could be used to do transformations or other alterations to geometries before
+ displaying them. 
+
+ Usage:
+ ```
+	add_filter( 'wpgq_geom_to_geojson', 'myplugin_geom_to_geojson' );
+
+	/**
+	  * @param string $wkt The well known text representation of the geometry
+	  from the database.
+	  */
+	function myplugin_geom_to_geojson( $wkt ) {
+		$geojson = myfunc_wkt_to_geojson( $wkt );
+
+		// Do something to the geojson
+		return $geojson;
+	}
+ ```
+
+ * wpgmd_sample_data_to_json
+
+ This filter is called when loading a random sample of data for the map of spatial data
+ in the dashboard. It is used internally to create a GeoJSON representation of lat/lng 
+ fields for display on the map.
+
+ Usage:
+ ```
+	add_filter( 'wpgmd_sample_data_to_json', 'custom_sample_data' );
+
+	/**
+	 *
+	 * @param array $record A single database query result array.
+	 * $record['the_id'] -- The object ID the metadata belongs to
+	 * $record['meta_key'] -- The meta_key for the metadata (from the postmeta (etc.) table, not the possibly modified version in the postmeta_geo (etc.) table )
+	 * $record['meta_value'] -- The meta_value for the metadata (from the postmeta (etc.) table, not the spatial version from the postmeta_geo (etc.) table)
+	 * $record['geo_meta_value'] -- The meta_value from the postmeta_geo (etc.) table
+	 * $record['geo_meta_key'] -- The meta_key from the postmeta_geo (etc.) table
+	 *
+	 * @param string $metatype The type of object this meta is for (post, user, etc.)
+	 */
+	function custom_sample_data( $record, $metatype ) {
+		if ( 'my_special_geo_meta_key' === $record[ 'geo_meta_key'] ) {
+			// Do something.
+			$record[ 'meta_value' ] = my_custom_geojson( $record[ 'geo_meta_value' ] );
+		}
+
+		return $record;
+	}
+ ```
+
+ * wpgq_known_capabilities
+
+ This filter is available so you can make your custom MySQL functions known to other users of WP-GeoMeta-Lib. 
+ Your function will be included in the list returned by `WP_GeoUtil::get_capabilities()`, if it is in fact available
+ in MySQL.
+
+ You can also use it to detect if an optional library is installed. 
+
+ NOTE: 
+ During your plugin activation you should run `WP_GeoUtil::get_capabilities( true );`, otherwise
+ the cached list of capabilites will continue to be used.
+
+ Usage: 
+ ```
+	add_filter( 'wpgq_known_capabilities', 'myplugin_add_support_for_my_func' );
+
+	function myplugin_add_support_for_my_func( $all_funcs ) {
+		$all_funcs[] = 'my_custom_mysql_function';
+		return $all_funcs;
+	}
+
+	// ... later ...
+
+	$all_caps = WP_GeoUtil::get_capabilities();
+	if ( in_array( 'my_custom_mysql_function', $all_caps ) ) {
+		// Do my stuff
+	} else {
+		// Notify the admin
+	}
+ ```
+
+#### Actions
+
+ * wpgm_populate_geo_tables
+
+ This action is called at the end of WP_GeoMeta->populate_geo_tables() to give you
+ an opportunity to populate the geo metatables with any non-GeoJSON types of geometry
+ you are supporting. It is used internally to support populating the geo metatables
+ with any latitude/longitude pairs added through WP_GeoMeta::add_latlng_field. 
+
+ Usage:
+ ```
+	add_filter( 'wpgm_populate_geo_tables', 'myplugin_populate_kml' );
+
+	function myplugin_populate_kml() {
+		global $wpdb;
+
+		$wpgeometa = WP_GeoMeta::get_instance();
+
+		$query = "SELECT post_id, meta_id, meta_key, meta_value 
+			FROM wp_postmeta 
+			WHERE meta_value LIKE '<?xml%/kml/2.2%'";
+
+		$res = $query->get_results( $query, ARRAY_A );
+		foreach( $res as $row ) {
+			// We don't have to convert KML to WKT because the filters we have set up will get called.
+			$wpgeometa->updated_post_meta( $row[ 'meta_id' ], $row[ 'post_id' ], $row[ 'meta_key' ], $row[ 'meta_value' ] );
+		}
+	}
+ ```
+
+
+
+
 Why WP-GeoMeta?
 ---------------
 
@@ -318,224 +546,6 @@ A few caveats with handling latitude and longitude:
 *Note*: The [WordPress Geodata meta keys](https://codex.wordpress.org/Geodata) are 
 supported out of the box. 
 
-
-
-
-
-Hooks: Filters and Actions
---------------------------
-
- * *Filter*: wpgm_pre_metaval_to_geom
-
- This filter is called right before WP-GeoMeta tries to convert the incoming meta value 
- to geometry. It is used internally to handle separate latitude and longitude values and
- could be used to support other unusual situations. If you just need to convert a non-geojson
- geometry to WKT, you should use wpgq_metaval_to_geom instead.
-
- Usage:
- ```
-	add_filter( 'wpgm_pre_metaval_to_geom', 'myplugin_handle_pre_metaval', 10, 2 );
-
-	/*
-	 * @param array  $meta_args Array with the meta_id that was just saved, the object_id it was for, the meta_key and meta_values used.
-	 *  $meta_args[0] -- meta_id from insert.
-	 *  $meta_args[1] -- object_id which this applies to.
-	 *  $meta_args[2] -- meta key.
-	 *  $meta_args[3] -- the meta value.
-	 *
-	 * @param string $object_type Which WP type is it? (comment/user/post/term).
-	 */
-	public static function handle_latlng_meta( $meta_args, $object_type ) {
-		// Return early if it's not the key we're looking for.
-		if ( 'special meta key' !== $meta_args[2] ) {
-			return $meta_args;
-		}
-
-		// Do some stuff, then return $meta_args.
-		return $meta_args;
-	}
- ```
-
- * *Filter*: wpgm_pre_delete_geometa
-
- This filter is called after a meta value has been deleted from the regular meta table, right 
- before WP-GeoMeta deletes the corresponding value from the geometa table. Deletions are 
- done based on the regular meta table's meta ID. This filter is used internally to delete
- the geo meta value when a latitude or longitude meta value is deleted from the non-geo 
- meta tables. 
-
- Usage:
- ```
-	add_filter( 'wpgm_pre_delete_geometa', 'special_delete_scenario', 10, 5 );
-
-	/*
-	 * @param array  $meta_ids The Meta IDs that will be deleted.
-	 * @param string $type The type of object whose meta is being deleted.
-	 * @param int    $object_id The ID of the object whose meta is being deleted.
-	 * @param string $meta_key The name of the meta key which is being deleted.
-	 * @param string $meta_value The value which is being deleted.
-	 */
-	public function special_delete_scenario( $meta_ids, $type, $object_id, $meta_key, $meta_value ) {
-
-		if ( 'special meta key' !== $meta_key ) {
-			return $meta_ids;
-		}
-
-		// Do some stuff, then return $meta_ids;
-		return $meta_ids;
-	}
- ```
-
- * *Filter*: wp_geoquery_srid
-
- This filter is called during plugins_loaded. It sets the [SRID](https://en.wikipedia.org/wiki/Spatial_reference_system) 
- that will be used when storing values in the database. The default value is 4326 
- (for EPSG:4326), which is the standard for GeoJSON. 
-
- MySQL doesn't support ST_Transform, and will complain if two geometries being compared
- have different SRIDs. As such, this option is dangerous and should be left alone unless 
- you know what you're doing.
-
- * *Filter*: wpgq_metaval_to_geom
-
- This filter is called within WP_GeoUtil::metaval_to_geom. It offers an opportunity to 
- support non-GeoJSON geometry types. 
-
- Functions implementing this filter should either return the incoming $metaval untouched
- or return WKT (best) or GeoJSON (will work).
-
- Usage:
- ```
-	add_filter( 'wpgq_metaval_to_geom', 'kml_to_geometry' );
-
-	/**
-	  * @param string $metaval The metavalue that we're about to store.
-	  */
-	function kml_to_geometry( $metaval ) {
-
-		if ( !is_kml( $metaval ) ) {
-			return $metaval;
-		}
-
-		$wkt = kml_to_wkt( $metaval );
-
-		return $wkt;
-	}
- ```
-
- * *Filter*: wpgq_geom_to_geojson
-
- This filter is called when converting a geometry from the database into GeoJSON
- so it can be displayed on a map (or whatever). 
-
- This could be used to do transformations or other alterations to geometries before
- displaying them. 
-
- Usage:
- ```
-	add_filter( 'wpgq_geom_to_geojson', 'myplugin_geom_to_geojson' );
-
-	/**
-	  * @param string $wkt The well known text representation of the geometry
-	  from the database.
-	  */
-	function myplugin_geom_to_geojson( $wkt ) {
-		$geojson = myfunc_wkt_to_geojson( $wkt );
-
-		// Do something to the geojson
-		return $geojson;
-	}
- ```
-
- * *Filter*: wpgmd_sample_data_to_json
-
- This filter is called when loading a random sample of data for the map of spatial data
- in the dashboard. It is used internally to create a GeoJSON representation of lat/lng 
- fields for display on the map.
-
- Usage:
- ```
-	add_filter( 'wpgmd_sample_data_to_json', 'custom_sample_data' );
-
-	/**
-	 *
-	 * @param array $record A single database query result array.
-	 * $record['the_id'] -- The object ID the metadata belongs to
-	 * $record['meta_key'] -- The meta_key for the metadata (from the postmeta (etc.) table, not the possibly modified version in the postmeta_geo (etc.) table )
-	 * $record['meta_value'] -- The meta_value for the metadata (from the postmeta (etc.) table, not the spatial version from the postmeta_geo (etc.) table)
-	 * $record['geo_meta_value'] -- The meta_value from the postmeta_geo (etc.) table
-	 * $record['geo_meta_key'] -- The meta_key from the postmeta_geo (etc.) table
-	 *
-	 * @param string $metatype The type of object this meta is for (post, user, etc.)
-	 */
-	function custom_sample_data( $record, $metatype ) {
-		if ( 'my_special_geo_meta_key' === $record[ 'geo_meta_key'] ) {
-			// Do something.
-			$record[ 'meta_value' ] = my_custom_geojson( $record[ 'geo_meta_value' ] );
-		}
-
-		return $record;
-	}
- ```
-
- * *Filter*: wpgq_known_capabilities
-
- This filter is available so you can make your custom MySQL functions known to other users of WP-GeoMeta-Lib. 
- Your function will be included in the list returned by `WP_GeoUtil::get_capabilities()`, if it is in fact available
- in MySQL.
-
- You can also use it to detect if an optional library is installed. 
-
- NOTE: 
- During your plugin activation you should run `WP_GeoUtil::get_capabilities( true );`, otherwise
- the cached list of capabilites will continue to be used.
-
- Usage: 
- ```
-	add_filter( 'wpgq_known_capabilities', 'myplugin_add_support_for_my_func' );
-
-	function myplugin_add_support_for_my_func( $all_funcs ) {
-		$all_funcs[] = 'my_custom_mysql_function';
-		return $all_funcs;
-	}
-
-	// ... later ...
-
-	$all_caps = WP_GeoUtil::get_capabilities();
-	if ( in_array( 'my_custom_mysql_function', $all_caps ) ) {
-		// Do my stuff
-	} else {
-		// Notify the admin
-	}
- ```
-
- * *Action*: wpgm_populate_geo_tables
-
- This action is called at the end of WP_GeoMeta->populate_geo_tables() to give you
- an opportunity to populate the geo metatables with any non-GeoJSON types of geometry
- you are supporting. It is used internally to support populating the geo metatables
- with any latitude/longitude pairs added through WP_GeoMeta::add_latlng_field. 
-
- Usage:
- ```
-	add_filter( 'wpgm_populate_geo_tables', 'myplugin_populate_kml' );
-
-	function myplugin_populate_kml() {
-		global $wpdb;
-
-		$wpgeometa = WP_GeoMeta::get_instance();
-
-		$query = "SELECT post_id, meta_id, meta_key, meta_value 
-			FROM wp_postmeta 
-			WHERE meta_value LIKE '<?xml%/kml/2.2%'";
-
-		$res = $query->get_results( $query, ARRAY_A );
-		foreach( $res as $row ) {
-			// We don't have to convert KML to WKT because the filters we have set up will get called.
-			$wpgeometa->updated_post_meta( $row[ 'meta_id' ], $row[ 'post_id' ], $row[ 'meta_key' ], $row[ 'meta_value' ] );
-		}
-	}
- ```
 
 
 

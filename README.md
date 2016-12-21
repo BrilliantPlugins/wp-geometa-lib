@@ -1,11 +1,11 @@
-WP-GeoMeta Lib
+WP-GeoMeta-Lib
 ==============
 
-WP-GeoMeta is a spatial foundation for WordPress.  It provides a solid foundation
-for spatial data using MySQL's native spatial support. With WP-GeoMeta you can store 
+WP-GeoMeta-Lib is a spatial foundation for WordPress.  It provides a solid foundation
+for spatial data using MySQL's native spatial support. With WP-GeoMeta-Lib you can store 
 and search spatial metadata like you do any other metadata, but using MySQL spatial indexes.
 
-WP-GeoMeta was created with developers in mind. If you find it cumbersome, buggy or 
+WP-GeoMeta-Lib was created with developers in mind. If you find it cumbersome, buggy or 
 missing features, let us know! 
 
 <!-- #toc -->
@@ -14,19 +14,18 @@ missing features, let us know!
 - [Usage](#usage)
     - [Writing and Reading Data](#writing-and-reading-data)
     - [Querying](#querying)
-    - [ORDER BY](#order-by)
-- [Server Requirements](#server-requirements)
-    - [WordPress](#wordpress)
-    - [PHP](#php)
-- [Frequently Asked Questions](#frequently-asked-questions)
-    - [What spatial comparisons are supported?](#what-spatial-comparisons-are-supported)
-- [Hooks: Filters and Actions](#hooks-filters-and-actions)
+        - [What spatial comparisons are supported?](#what-spatial-comparisons-are-supported)
+        - [ORDER BY](#order-by)
 - [Why WP-GeoMeta?](#why-wp-geometa)
     - [Integration with Other Plugins](#integration-with-other-plugins)
     - [Why not separate lat and long fields?](#why-not-separate-lat-and-long-fields)
     - [OK, fine, but I really need separate fields](#ok-fine-but-i-really-need-separate-fields)
-- [How to Use WP-GeoMeta](#how-to-use-wp-geometa)
+- [Hooks: Filters and Actions](#hooks-filters-and-actions)
 - [Important Notes](#important-notes)
+- [Server Requirements](#server-requirements)
+    - [WordPress](#wordpress)
+    - [MySQL](#mysql)
+    - [PHP](#php)
 - [Hacking](#hacking)
 - [Quotes](#quotes)
 
@@ -35,7 +34,7 @@ missing features, let us know!
 Quick Start
 -----------
 
-1. Download WP-GeoMeta Lib to your plugin. 
+1. Download WP-GeoMeta-Lib to your plugin. 
  
  ```
  	git clone https://github.com/cimburadotcom/wp-geometa-lib.git 
@@ -54,7 +53,6 @@ Quick Start
 
 Once you are storing spatial data you (or anyone else!) can query it
 using spatial queries!
-
 
 Usage
 -----
@@ -147,74 +145,7 @@ made against the result of applying the geometry function to the spatial metadat
     	)
     	))); 
 
-### ORDER BY
-
-orderby with named meta clauses should work. It's a new feature though, so send me bug reports.
-
-1) Single arg orderby (eg. Dimension, GLength, ST_Area)
-
-    $wpq = new WP_Query(array(
-    	'post_type' => 'geo_test',
-    	'orderby' => ARRAY( 'dimensions' => 'ASC',  'titlemeta' => 'ASC' ),
-    	'meta_query' => array(
-    		'dimensions' => array( 
-    			'key' => 'wpgeometa_test',
-    			'geom_op' => 'Dimension'
-    		)
-		)));
-
-2) Two argument function that returns a value, eg. ST_Distance. Note that I use 
-```'type' => 'DECIMAL(10,7)'``` so that sorting is done numerically, instead of alphabetically.
-
-    $wpq = new WP_Query(array(
-    	'post_type' => 'geo_test',
-    	'orderby' => 'distance',
-    	'order' => 'ASC',
-    	'meta_query' => array(
-    		'distance' => array( 
-    			'key' => 'wpgeometa_test',
-    			'compare' => 'ST_Distance',
-    			'value' => '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-1.26,1.08],[-1.26,1.09],[-1.21,1.09],[-1.21,1.08],[-1.26,1.08]]]}}',
-    			'type' => 'DECIMAL(10,7)'
-    		)
-    	))); 
-
-
-
-Server Requirements
--------------------
-
-### WordPress
-This library supports storing spatial metadata for posts, users, comments and
-terms. 
-
-Setting, getting and querying values should work in 4.1 with some missing functionality. 
-Running orderby doesn't work until 4.2
-Searching term metadata arrived in WordPress 4.4, but other
-functionality should still work in older versions of WordPress.
-
-MySQL 5.6.1 or higher is strongly recommended. Lower than MySQL 5.1.72 is untested.
-
-WP_GeoMeta will probably work on MySQL 5.4, but spatial support was pretty weak 
-before version 5.6.1. 
-
-Before MySQL 5.6.1 spatial functions worked against the mininum bounding rectangle 
-instead of the actual geometry.
-
-MySQL 5.7 brough spatial indexes to InnoDB tables. Before that only MyISAM tables
-supported spatial indexes. Anything else required a full table scan. 
-
-If you are using MySQL 5.7, good for you, and consider converting your geo tables
-to InnoDB! (and let me know how it goes).
-
-### PHP
-PHP 5.2.4 and higher are supported, just like WordPress's minimum version.
-Please report any PHP errors you come across and we'll fix them up.
-
-Frequently Asked Questions
---------------------------
-
-### What spatial comparisons are supported?
+#### What spatial comparisons are supported?
 
 Any spatial operation that takes two geometries and returns a boolean, 
 or which takes one geometry and returns a boolean or a value is
@@ -307,6 +238,89 @@ To see what your install of MySQL supports, install
 [WP Spatial Capabilities Check](https://wordpress.org/plugins/wp-spatial-capabilities-check/). 
 We recommend using MySQL 5.6.1 or higher since it included many important updates to 
 spatial operators.
+
+#### ORDER BY
+
+orderby with named meta clauses should work.
+
+1) Single arg orderby (eg. Dimension, GLength, ST_Area)
+
+    $wpq = new WP_Query(array(
+    	'post_type' => 'geo_test',
+    	'orderby' => ARRAY( 'dimensions' => 'ASC',  'titlemeta' => 'ASC' ),
+    	'meta_query' => array(
+    		'dimensions' => array( 
+    			'key' => 'wpgeometa_test',
+    			'geom_op' => 'Dimension'
+    		)
+		)));
+
+2) Two argument function that returns a value, eg. ST_Distance. Note that I use 
+```'type' => 'DECIMAL(10,7)'``` so that sorting is done numerically, instead of alphabetically.
+
+    $wpq = new WP_Query(array(
+    	'post_type' => 'geo_test',
+    	'orderby' => 'distance',
+    	'order' => 'ASC',
+    	'meta_query' => array(
+    		'distance' => array( 
+    			'key' => 'wpgeometa_test',
+    			'compare' => 'ST_Distance',
+    			'value' => '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-1.26,1.08],[-1.26,1.09],[-1.21,1.09],[-1.21,1.08],[-1.26,1.08]]]}}',
+    			'type' => 'DECIMAL(10,7)'
+    		)
+    	))); 
+
+Why WP-GeoMeta?
+---------------
+
+### Integration with Other Plugins
+
+You might not need spatial queries yourself, but by using WP-GeoMeta you allow other developers to 
+query your data more easily. 
+
+For example, if you were creating a restaurant locations plugin, and someone else had a neighborhood
+boundary plugin, the website developer could query which neighborhood a restaurant is in, or which
+restaurants are within a given neighborhood. 
+
+
+### Why not separate lat and long fields?
+
+Storing lat and long in separate fields means that you have to implement your own 
+[complicated queries](http://stackoverflow.com/questions/20795835/wordpress-and-haversine-formula)
+if you want to search by distance. 
+
+You'll only be able to store points, and you won't have indexing available. 
+
+### OK, fine, but I really need separate fields
+
+Using separate Latitude and Longitude fields is slightly more complex, but is 
+supported by WP-GeoMeta. You will need to register your new latitude/longitude
+meta keys so that WP-GeoMeta knows about them. You can do this any time after
+plugins_loaded. 
+
+```
+add_action('plugins_loaded', function() {
+	// WP_GeoMeta::add_latlng_field( <latitude field name>, <longitude field name>, <spatial meta_key name> );
+	WP_GeoMeta::add_latlng_field( 'myplugin_lat', 'myplugin_lng', 'myplugin_geo' );
+});
+```
+
+A few caveats with handling latitude and longitude:
+
+ 1. The spatial meta key will only be present in the wp_postmeta_geo table ( or
+ other applicable geo metatable ). Any spatial queries will need to use the 
+ spatial meta key you register. 
+ 2. There's a chance of conflicts. If your latitude or longitude field is named
+ the same as another plugin's latitude or longitude field the resulting behavior 
+ is undefined and unsupported. 
+
+*Note*: The [WordPress Geodata meta keys](https://codex.wordpress.org/Geodata) are 
+supported out of the box. 
+
+
+
+
 
 Hooks: Filters and Actions
 --------------------------
@@ -525,78 +539,6 @@ Hooks: Filters and Actions
 
 
 
-Why WP-GeoMeta?
----------------
-
-### Integration with Other Plugins
-
-You might not need spatial queries yourself, but by using WP-GeoMeta you allow other developers to 
-query your data more easily. 
-
-For example, if you were creating a restaurant locations plugin, and someone else had a neighborhood
-boundary plugin, the website developer could query which neighborhood a restaurant is in, or which
-restaurants are within a given neighborhood. 
-
-
-### Why not separate lat and long fields?
-
-Storing lat and long in separate fields means that you have to implement your own 
-[complicated queries](http://stackoverflow.com/questions/20795835/wordpress-and-haversine-formula)
-if you want to search by distance. 
-
-You'll only be able to store points, and you won't have indexing available. 
-
-### OK, fine, but I really need separate fields
-
-Using separate Latitude and Longitude fields is slightly more complex, but is 
-supported by WP-GeoMeta. You will need to register your new latitude/longitude
-meta keys so that WP-GeoMeta knows about them. You can do this any time after
-plugins_loaded. 
-
-```
-add_action('plugins_loaded', function() {
-	// WP_GeoMeta::add_latlng_field( <latitude field name>, <longitude field name>, <spatial meta_key name> );
-	WP_GeoMeta::add_latlng_field( 'myplugin_lat', 'myplugin_lng', 'myplugin_geo' );
-});
-```
-
-A few caveats with handling latitude and longitude:
-
- 1. The spatial meta key will only be present in the wp_postmeta_geo table ( or
- other applicable geo metatable ). Any spatial queries will need to use the 
- spatial meta key you register. 
- 2. There's a chance of conflicts. If your latitude or longitude field is named
- the same as another plugin's latitude or longitude field the resulting behavior 
- is undefined and unsupported. 
-
-*Note*: The [WordPress Geodata meta keys](https://codex.wordpress.org/Geodata) are 
-supported out of the box. 
-
-How to Use WP-GeoMeta
---------------------- 
-
-1. Download [the latest version](https://github.com/cimburadotcom/WP-GeoMeta/releases) of WP-GeoMeta to 
-a sub-directory inside your plugin — ```myplugin/wp-geometa```
-
-2. Within your plugin require *wp-geometa.php* — ```require_once( dirname( __FILE__ ) . 'wp-geometa/wp-geometa.php' )```
-
-3. Add an activation hook to your plugin to create the spatial tables
-
-```
-    function my_activation_hook() {
-        $wpgeo = WP_GeoMeta::get_instance();
-        $wpgeo->create_geo_tables();
-    }
-    register_activation_hook( __FILE__ , 'my_activation_hook' );
-```
-
-
-4. Use the usual postmeta functions within your plugin (update_post_meta, update_user_meta, etc.) 
-   using GeoJSON as the values. 
-
-5. See the [README.md](README.md) document for instructions on how to query your data. 
-
-
 Important Notes
 ---------------
 
@@ -607,6 +549,38 @@ to see if the function you're about to use is available.
 
 * Some MySQL spatial functions only work on the Bounding Box of the shape and not the actual geometry. For details about
 when and why this is a problem, see [this 2013 blog post from Percona](https://www.percona.com/blog/2013/10/21/using-the-new-mysql-spatial-functions-5-6-for-geo-enabled-applications/).
+
+Server Requirements
+-------------------
+
+### WordPress
+This library supports storing spatial metadata for posts, users, comments and
+terms. 
+
+Setting, getting and querying values should work in 4.1 with some missing functionality. 
+Running orderby doesn't work until 4.2
+Searching term metadata arrived in WordPress 4.4, but other
+functionality should still work in older versions of WordPress.
+
+### MySQL
+
+MySQL 5.6.1 or higher is strongly recommended. Lower than MySQL 5.1.72 is untested.
+
+WP_GeoMeta will probably work on MySQL 5.4, but spatial support was pretty weak 
+before version 5.6.1. 
+
+Before MySQL 5.6.1 spatial functions worked against the mininum bounding rectangle 
+instead of the actual geometry.
+
+MySQL 5.7 brough spatial indexes to InnoDB tables. Before that only MyISAM tables
+supported spatial indexes. Anything else required a full table scan. 
+
+If you are using MySQL 5.7, good for you, and consider converting your geo tables
+to InnoDB! (and let me know how it goes).
+
+### PHP
+PHP 5.2.4 and higher are supported, just like WordPress's minimum version.
+Please report any PHP errors you come across and we'll fix them up.
 
 Hacking
 -------

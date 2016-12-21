@@ -1,6 +1,10 @@
 Changes
 -------
 
+### 0.3.2
+ * WP_GeoUtil::is_geom now has a shortcircuit for strings that don't even look like WKT
+ * Updated documentation!
+
 ### 0.3.1
  * Support for custom MySQL functions (User Defined Functions and stored functions).
  * Built-in support for some functions which may be useful for working with Lat/Lng distances and bearings.

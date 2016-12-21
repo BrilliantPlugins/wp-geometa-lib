@@ -489,6 +489,14 @@ class WP_GeoUtil {
 				return false;
 			}
 
+			// sniff test for wkt
+			if ( false === stripos($maybe_geom, 'POINT') && 
+				false === stripos($maybe_geom,'LINE') &&
+				false === stripos($maybe_geom,'POLYGON' )
+			) {
+				return false;
+			}
+
 			$what = self::$geowkt->read( (string) $maybe_geom );
 			if ( null !== $what ) {
 				return true;

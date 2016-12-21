@@ -1,7 +1,7 @@
 WP-GeoMeta-Lib
 ==============
 
-WP-GeoMeta-Lib is a spatial foundation for WordPress.  It provides a solid foundation
+WP-GeoMeta-Lib is a spatial framework for WordPress.  It provides a solid foundation
 for spatial data using MySQL's native spatial support. With WP-GeoMeta-Lib you can store 
 and search spatial metadata like you do any other metadata, but using MySQL spatial indexes.
 
@@ -497,6 +497,124 @@ so that you can extend it to suit your needs. If there's a hook that you need se
  ```
 
 
+### Calling Spatial Functions From PHP
+
+ Sometimes you might just need to run a spatial operation on a spatial value. WP-GeoMeta-Lib makes
+ this easy! 
+
+ You can call any spatial function your install of MySQL supports as a static method of WP_GeoUtil. 
+ These functions conveniently accept GeoJSON geometry so you don't have to convert your spatial
+ data into Well Known Text (WKT) for MySQL. 
+
+#### Examples
+
+ Check if two GeoJSON shapes intersect
+ ```
+ $do_they_intersect = WP_GeoUtil::ST_Intersects({PointGeoJSON},{PolygonGeoJSON});
+ ```
+
+ Union (combine) two GeoJSON polygons
+ ```
+ $spatial_union = WP_GeoUtil::ST_Union({PolygonGeoJSON_1},{PolygonGeoJSON_2});
+ ```
+
+### Custom Auxiliary Functions
+
+ Besides the default spatial functions included with MySQL, WP-GeoMeta-Lib 
+ provides the filter wpgq_known_capabilities which lets you add support
+ for your own spatial SQL functions. These can be UDF (User Defined Functions) or Stored Functions. 
+
+ WP-GeoMeta-Lib includes several stored functions for your convenience.
+
+ The functions included are: 
+
+ * wp_buffer_point_m( p POINT, radius FLOAT, segments INT)
+
+	Buffer a point by a number of meters. Returns a polygon approximating a circle.
+
+	- _p_ A single point geometry with coordinates in EPSG:4326 (the common latitude/longitude format, like 45.0,-93.3)
+	- _radius_ The distance to buffer the point, in meters.
+	- _segments_ The number of segments per quarter of a circle. Eg. If you set this to 4, then your resulting polygon will have 16 segments.
+
+ * wp_buffer_point_mi( p POINT, radius FLOAT, segments INT)
+
+	Buffer a point by a number of miles. Returns a polygon approximating a circle.
+
+	- _p_ A single point geometry with coordinates in EPSG:4326.
+	- _radius_ The distance to buffer the point, in miles.
+	- _segments_ The number of segments per quarter of a circle. Eg. If you set this to 4, then your resulting polygon will have 16 segments.
+
+ * wp_buffer_point_real( p POINT, radius FLOAT, segments INT, eradius INTEGER)
+
+	Buffer a point assuming an earth with a specified radius. Returns a polygon approximating a circle.
+
+	- _p_ A single point geometry with coordinates in EPSG:4326.
+	- _radius_ The distance to buffer the point, in any units.
+	- _segments_ The number of segments per quarter of a circle. Eg. If you set this to 4, then your resulting polygon will have 16 segments.
+	- _eradius_ The radius of the earth in the same units as _radius_
+
+ * wp_distance_point_m( p1 POINT, p2 POINT)
+	
+	Get the distance between two points in meters.
+
+	- _p1_ A single point geometry with coordinates in EPSG:4326.
+	- _p2_ A single point geometry with coordinates in EPSG:4326.
+
+ * wp_distance_point_mi( p1 POINT, p2 POINT)
+	
+	Get the distance between two points in miles.
+
+	- _p1_ A single point geometry with coordinates in EPSG:4326.
+	- _p2_ A single point geometry with coordinates in EPSG:4326.
+
+ * wp_distance_point_real( p1 POINT, p2 POINT, radius FLOAT)
+
+	Get the distance between two points for a given radius of the earth.
+
+	- _p1_ A single point geometry with coordinates in EPSG:4326.
+	- _p2_ A single point geometry with coordinates in EPSG:4326.
+	- _radius_ The radius of the earth in the units you want your results in.
+
+ * wp_first_geom( p GEOMETRY )
+
+	Get the first geometry from a multi-geometry. If _p_ is not a multi-geometry, it will be returned unchanged.
+
+	- _p_ A geometry object.
+
+ * wp_point_bearing_distance_to_line_m(p POINT, bearing FLOAT, distance FLOAT)
+
+	Create a linestring given a starting point, a bearing and a distance in meters.
+
+	_p_ A single point geometry with coordinates in EPSG:4326.
+	_bearing_ The bearing to travel in degrees. 0 degrees is north.
+	_distance_ The number of meters to travel.
+
+ * wp_point_bearing_distance_to_line_mi(p POINT, bearing FLOAT, distance FLOAT)
+
+	Create a linestring given a starting point, a bearing and a distance in miles.
+
+	_p_ A single point geometry with coordinates in EPSG:4326.
+	_bearing_ The bearing to travel in degrees. 0 degrees is north.
+	_distance_ The number of miles to travel.
+
+ * wp_point_bearing_distance_to_line(p POINT, bearing FLOAT, distance FLOAT, eradius INTEGER)
+
+	Create a linestring given a starting point, a bearing, a distance and the radius of the earth.
+
+	_p_ A single point geometry with coordinates in EPSG:4326.
+	_bearing_ The bearing to travel in degrees. 0 degrees is north.
+	_distance_ The distance to travel.
+	_eradius_ The radius of the earth in the same units as _distance_.
+
+
+ * wp_point_bearing_distance_coord_pair(p POINT, bearing FLOAT, distance FLOAT, eradius INTEGER)
+
+	Get the point a given distance from a starting point on a given bearing for a given radius of the earth.
+
+	_p_ A single point geometry with coordinates in EPSG:4326.
+	_bearing_ The bearing to travel in degrees. 0 degrees is north.
+	_distance_ The distance to travel.
+	_eradius_ The radius of the earth in the same units as _distance_.
 
 
 Why WP-GeoMeta?

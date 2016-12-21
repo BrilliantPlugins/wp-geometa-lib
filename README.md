@@ -98,6 +98,7 @@ There are three styles of queries supported, to cover three different classes of
  of the geometry to use for the second argument. The geometry meta field indicated by the _key_ parameter
  will be used as the first argument to the _compare_ function.
 
+ ```
     $q = new WP_Query( array(
     	'meta_query' => array(
     		array(
@@ -112,6 +113,7 @@ There are three styles of queries supported, to cover three different classes of
     	$q->the_post();
     	print "\t* " . get_the_title() . "\n";
     }
+ ```
 
 2. Query geometry properties
 
@@ -120,6 +122,7 @@ There are three styles of queries supported, to cover three different classes of
  
  The _compare_ argument should be the function just like above, but no value is needed.
 
+ ```
     $q = new WP_Query(array( 
     	'meta_query' => array( 
     		array( 
@@ -127,6 +130,7 @@ There are three styles of queries supported, to cover three different classes of
     		'compare' => 'ST_IsEmpty'
     		)
     	)));
+ ```
 
 3. Compare the results of geometry functions
 
@@ -140,6 +144,7 @@ There are three styles of queries supported, to cover three different classes of
  The _key_, _compare_ and _value_ are used in the regular WP_Query way, but the comparison will be 
  made against the result of applying the geometry function to the spatial metadata specified.
 
+ ```
     $q = new WP_Query(array(
     	'meta_query' => array(
     		array( 
@@ -149,6 +154,7 @@ There are three styles of queries supported, to cover three different classes of
     		'geom_op' => 'NumPoints'
     	)
     	))); 
+ ```
 
 #### Support Comparison Operations
 

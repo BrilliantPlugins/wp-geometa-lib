@@ -620,12 +620,25 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 	_eradius_ The radius of the earth in the same units as _distance_.
 
 
-Why WP-GeoMeta?
----------------
+Why WP-GeoMeta-Lib?
+-------------------
+
+If your plugin or website uses location data, then you should be using WP-GeoMeta-Lib. WP-GeoMeta-Lib
+makes using spatial data *easy* and *efficient*. 
+
+All metadata goes into a big meta table, regardless of what type of data it is.  All values are stored 
+as longtext and there's not even an index on the column. This is fine for looking up values if you 
+know the post ID and the key name. It's less than ideal if you need to search for a certain value
+and it's absolutely terrible if you want to store or search for spatial data. 
+
+WP-GeoMeta-Lib detects when you are storing or querying spatial data and transparently re-routes those 
+data and queries to a set of spatial metadata tables. These spatial metadata tables are indexed and give you
+the ability to use all of the spatial functions built in to MySQL.
+
 
 ### Integration with Other Plugins
 
-You might not need spatial queries yourself, but by using WP-GeoMeta you allow other developers to 
+Even if you don't need spatial queries yourself, using WP-GeoMeta-Lib allows other developers to 
 query your data more easily. 
 
 For example, if you were creating a restaurant locations plugin, and someone else had a neighborhood
@@ -637,12 +650,12 @@ restaurants are within a given neighborhood.
 
 Storing lat and long in separate fields means that you have to implement your own 
 [complicated queries](http://stackoverflow.com/questions/20795835/wordpress-and-haversine-formula)
-if you want to search by distance. 
+if you want to search by distance. You won't be able to store lines or polygons, 
+there's no indexing on your points and geographers everywhere will cry. 
 
-You'll only be able to store points, and you won't have indexing available. 
+#### OK, fine, but I really need separate fields
 
-### OK, fine, but I really need separate fields
-
+If you really need (or already are using) separate longitude and latitude fields
 Using separate Latitude and Longitude fields is slightly more complex, but is 
 supported by WP-GeoMeta. You will need to register your new latitude/longitude
 meta keys so that WP-GeoMeta knows about them. You can do this any time after
@@ -666,9 +679,6 @@ A few caveats with handling latitude and longitude:
 
 *Note*: The [WordPress Geodata meta keys](https://codex.wordpress.org/Geodata) are 
 supported out of the box. 
-
-
-
 
 Important Notes
 ---------------

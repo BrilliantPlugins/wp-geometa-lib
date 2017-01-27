@@ -339,19 +339,23 @@ class WP_GeoUtil {
 	 * @param string $return_type The supported types are 'string' and 'array'.
 	 */
 	public static function metaval_to_geojson( $metaval, $return_type = 'string' ) {
+		$metaval = maybe_unserialize( $metaval );
 
-		// Quick exit
+		if ( self::is_geojson( $metaval ) ) {
+			return $metaval;
+		}
+
 		if ( empty( $metaval) ) {
 			return false;
 		}
 
-		// Could be a serialized array
-		$metaval = maybe_unserialize( $metaval );
-
-		// If we've been asked for a string and it's a GeoJSON string, 
-		// we can just return now.
-		if ( self::is_geojson( $metaval, ( 'string' === $return_type ) ) ) {
-			return $metaval;
+		// Exit early if we're a non-GeoJSON string.
+		if ( is_string( $metaval ) ) {
+		   	if ( strpos( $metaval,'{' ) === false || strpos( $metaval,'Feature' ) === false || strpos( $metaval,'geometry' ) === false ) {
+				return false;
+			} else {
+				$metaval = json_decode( $metaval,true );
+			}
 		}
 
 		// If it's an object, cast it to an array for consistancy.
@@ -362,7 +366,7 @@ class WP_GeoUtil {
 		// Last check!
 		$string_metaval = wp_json_encode( $metaval );
 
-		if ( !self::is_geojson( $string_metaval, 'true' ) ) {
+		if ( !self::is_geojson( $metaval ) ) {
 			return false;
 		}
 
@@ -389,7 +393,8 @@ class WP_GeoUtil {
 		}
 
 		// Everything becomes GeoJSON so that the rest of this function will be simpler
-		$metaval = self::metaval_to_geojson( $metaval, 'string' );
+		$make_string = ( $force_multi ? 'string' : 'array' );
+		$metaval = self::metaval_to_geojson( $metaval, $make_string );
 
 		if ( $metaval === false ) {
 			return $metaval;
@@ -466,14 +471,11 @@ class WP_GeoUtil {
 
 		try {
 			$geom = self::$geowkt->read( $maybe_geojson );
-			$geojson = self::$geojson->write( $geom );
-		   	if ( strpos( $maybe_geojson, '{' ) === false || strpos( $maybe_geojson, 'Feature' ) === false || strpos( $maybe_geojson, 'geometry' ) === false ) {
-				$geojson = '{"type":"Feature","geometry":' . $geojson . ',"properties":{}}';
-			}
-			return $geojson;
+			return self::$geojson->write( $geom );
 		} catch ( Exception $e ) {
 			return false;
 		}
+
 	}
 
 	/**
@@ -486,14 +488,6 @@ class WP_GeoUtil {
 	public static function is_geom( $maybe_geom ) {
 		try {
 			if ( ! is_string( $maybe_geom ) ) {
-				return false;
-			}
-
-			// sniff test for wkt
-			if ( false === stripos($maybe_geom, 'POINT') && 
-				false === stripos($maybe_geom,'LINE') &&
-				false === stripos($maybe_geom,'POLYGON' )
-			) {
 				return false;
 			}
 
@@ -527,12 +521,7 @@ class WP_GeoUtil {
 				$maybe_geojson = json_encode( $maybe_geojson );
 			}
 
-		   	if ( strpos( $maybe_geojson, '{' ) === false || strpos( $maybe_geojson, 'Feature' ) === false || strpos( $maybe_geojson, 'geometry' ) === false ) {
-				return false;
-			} 
-
 			$what = self::$geojson->read( (string) $maybe_geojson );
-
 			if ( null !== $what ) {
 				return true;
 			} else {
@@ -658,7 +647,37 @@ class WP_GeoUtil {
 		}
 		$q .= ')';
 
-		$real_q = 'SELECT IF( GeometryType( retval ) IS NULL, retval, AsText( retval ) ) AS res FROM ( ' . $q . ' AS retval ) rq';
+
+/*
+-- Detect geometry. 
+-- Data is WKB, with a 4 byte leading SRID (which may be 00 00 00 00)
+-- In big endian it will look like this: 
+-- E6 10   00 00 	    00 10 20 00
+-- srid    endianness   WKB integer code
+-- Note: MySQL appears to use the Z codes, though I can't find actual support for Z values
+*/
+
+		$real_q = 'SELECT IF( 
+			SUBSTR(HEX(retval),4,12) IN (
+
+				-- big endian
+				\'000000100000\', -- geometry
+				\'000000101000\', -- point
+				\'000000102000\', -- line 
+				\'000000103000\', -- polygon
+				\'000000104000\', -- multipoint
+				\'000000105000\', -- multiline
+				\'000000106000\', -- multipolygon
+
+				-- little endian
+				\'000010000000\', -- geometry
+				\'000010000010\', -- point
+				\'000010000020\', -- line 
+				\'000010000030\', -- polygon
+				\'000010000040\', -- multipoint
+				\'000010000050\', -- multiline
+				\'000010000060\' -- multipolygon
+			), AsText( retval ), retval ) AS res FROM ( ' . $q . ' AS retval ) rq';
 
 		$sql = $wpdb->prepare( $real_q, $arguments );
 

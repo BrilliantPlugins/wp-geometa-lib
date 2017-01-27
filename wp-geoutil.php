@@ -652,32 +652,36 @@ class WP_GeoUtil {
 -- Detect geometry. 
 -- Data is WKB, with a 4 byte leading SRID (which may be 00 00 00 00)
 -- In big endian it will look like this: 
--- E6 10   00 00 	    00 10 20 00
+-- E6 10	00			00 01 02 00
+-- srid    endianness   WKB integer code
+
+-- In little endian it should look like this: 
+-- 10 E6		01 	    01 00 00 02
 -- srid    endianness   WKB integer code
 -- Note: MySQL appears to use the Z codes, though I can't find actual support for Z values
 */
 
 		$real_q = 'SELECT IF( 
-			SUBSTR(HEX(retval),4,12) IN (
+			COALESCE( SUBSTR(HEX(retval),5,10) IN (
 
 				-- big endian
-				\'000000100000\', -- geometry
-				\'000000101000\', -- point
-				\'000000102000\', -- line 
-				\'000000103000\', -- polygon
-				\'000000104000\', -- multipoint
-				\'000000105000\', -- multiline
-				\'000000106000\', -- multipolygon
+				\'0000010000\', -- geometry
+				\'0000010100\', -- point
+				\'0000010200\', -- line 
+				\'0000010300\', -- polygon
+				\'0000010400\', -- multipoint
+				\'0000010500\', -- multiline
+				\'0000010600\', -- multipolygon
 
 				-- little endian
-				\'000010000000\', -- geometry
-				\'000010000010\', -- point
-				\'000010000020\', -- line 
-				\'000010000030\', -- polygon
-				\'000010000040\', -- multipoint
-				\'000010000050\', -- multiline
-				\'000010000060\' -- multipolygon
-			), AsText( retval ), retval ) AS res FROM ( ' . $q . ' AS retval ) rq';
+				\'0001000000\', -- geometry
+				\'0001000001\', -- point
+				\'0001000002\', -- line 
+				\'0001000003\', -- polygon
+				\'0001000004\', -- multipoint
+				\'0001000005\', -- multiline
+				\'0001000006\' -- multipolygon
+			), false) , AsText( retval ), retval ) AS res FROM ( ' . $q . ' AS retval ) rq';
 
 		$sql = $wpdb->prepare( $real_q, $arguments );
 

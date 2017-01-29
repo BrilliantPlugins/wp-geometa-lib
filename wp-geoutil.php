@@ -521,7 +521,13 @@ class WP_GeoUtil {
 				$maybe_geojson = json_encode( $maybe_geojson );
 			}
 
-			$what = self::$geojson->read( (string) $maybe_geojson );
+			$maybe_geojson = ( string) $maybe_geojson;
+
+		   	if ( strpos( $maybe_geojson, '{' ) === false || strpos( $maybe_geojson, 'Feature' ) === false || strpos( $maybe_geojson, 'geometry' ) === false ) {
+				return false;
+			}
+
+			$what = self::$geojson->read( $maybe_geojson );
 			if ( null !== $what ) {
 				return true;
 			} else {

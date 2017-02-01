@@ -475,7 +475,6 @@ class WP_GeoUtil {
 		} catch ( Exception $e ) {
 			return false;
 		}
-
 	}
 
 	/**
@@ -488,6 +487,16 @@ class WP_GeoUtil {
 	public static function is_geom( $maybe_geom ) {
 		try {
 			if ( ! is_string( $maybe_geom ) ) {
+				return false;
+			}
+
+			if ( stripos( $maybe_geom, 'POINT' ) !== 0 &&
+				stripos( $maybe_geom, 'LINESTRING' ) !== 0 &&
+				stripos( $maybe_geom, 'POLYGON' ) !== 0 &&
+				stripos( $maybe_geom, 'MULTIPOINT' ) !== 0 &&
+				stripos( $maybe_geom, 'MULTILINESTRING' ) !== 0 &&
+				stripos( $maybe_geom, 'MULTIPOLYGON' ) !== 0
+			) {
 				return false;
 			}
 

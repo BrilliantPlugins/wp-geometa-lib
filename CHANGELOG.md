@@ -7,6 +7,7 @@ Changes
  * WP_GeoUtil::run_spatial_query now uses a non-warning-generating method to detect if a value is spatial or not
  * Updated WP_GeoUtil::is_geojson to detect non-GeoJSON without trying to parse it.
  * Improved metaval_to_geom
+ * Improved handling of MySQL geometry function call results, wrapping bare geometry GeoJSON with {"type":"Feature", "geometry": {the geometry}}
 
 ### 0.3.1
  * Support for custom MySQL functions (User Defined Functions and stored functions).

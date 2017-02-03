@@ -469,14 +469,22 @@ class WP_GeoUtil {
 			stripos( $maybe_geojson, 'POLYGON' ) !== 0 &&
 			stripos( $maybe_geojson, 'MULTIPOINT' ) !== 0 &&
 			stripos( $maybe_geojson, 'MULTILINESTRING' ) !== 0 &&
-			stripos( $maybe_geojson, 'MULTIPOLYGON' ) !== 0
+			stripos( $maybe_geojson, 'MULTIPOLYGON' ) !== 0 && 
+			stripos( $maybe_geojson, 'GEOMETRYCOLLECTION' ) !== 0
 		) {
 			return false;
 		}
 
 		try {
 			$geom = self::$geowkt->read( $maybe_geojson );
-			return self::$geojson->write( $geom );
+			$geojson = self::$geojson->write( $geom );
+
+			// Do we need to wrap it? 
+			if ( !empty( $geojson ) && strpos( $geojson, '"type":"Feature"' ) === false ) {
+				$geojson = '{"type":"Feature","geometry":' . $geojson . ',"properties":{}}';
+			}
+
+			return $geojson;
 		} catch ( Exception $e ) {
 			return false;
 		}
@@ -500,7 +508,8 @@ class WP_GeoUtil {
 				stripos( $maybe_geom, 'POLYGON' ) !== 0 &&
 				stripos( $maybe_geom, 'MULTIPOINT' ) !== 0 &&
 				stripos( $maybe_geom, 'MULTILINESTRING' ) !== 0 &&
-				stripos( $maybe_geom, 'MULTIPOLYGON' ) !== 0
+				stripos( $maybe_geom, 'MULTIPOLYGON' ) !== 0 &&
+				stripos( $maybe_geom, 'GEOMETRYCOLLECTION' ) !== 0
 			) {
 				return false;
 			}

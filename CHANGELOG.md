@@ -5,6 +5,8 @@ Changes
  * WP_GeoUtil::is_geom now has a shortcircuit for strings that don't even look like WKT
  * Updated documentation!
  * WP_GeoUtil::run_spatial_query now uses a non-warning-generating method to detect if a value is spatial or not
+ * Updated WP_GeoUtil::is_geojson to detect non-GeoJSON without trying to parse it.
+ * Improved metaval_to_geom
 
 ### 0.3.1
  * Support for custom MySQL functions (User Defined Functions and stored functions).

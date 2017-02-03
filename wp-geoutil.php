@@ -408,6 +408,11 @@ class WP_GeoUtil {
 			return false;
 		}
 
+		// Stringify any arrays
+		if ( is_array( $metaval ) ) {
+			$metaval = json_encode( $metaval );
+		}
+
 		// Convert GeoJSON to WKT.
 		try {
 			$geom = self::$geojson->read( (string) $metaval );

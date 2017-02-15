@@ -8,6 +8,10 @@ Changes
  * Updated WP_GeoUtil::is_geojson to detect non-GeoJSON without trying to parse it.
  * Improved metaval_to_geom
  * Improved handling of MySQL geometry function call results, wrapping bare geometry GeoJSON with {"type":"Feature", "geometry": {the geometry}}
+ * Split out creation of tables from creation of custom SQL functions.
+ * Added filter to allow plugin devs to include their own custom SQL function files.
+ * Standardized filter name prefixes to wpgm\_ (old filters will stick around for a few versions, even though I don't think anyone is using them).
+ * Standardized internal callback functions to use the same name as the filter that they're callbacks for.
 
 ### 0.3.1
  * Support for custom MySQL functions (User Defined Functions and stored functions).

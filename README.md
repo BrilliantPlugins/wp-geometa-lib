@@ -352,7 +352,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 	}
  ```
 
- * wp_geoquery_srid
+ * wpgm_geoquery_srid
 
  This filter is called during plugins_loaded. It sets the [SRID](https://en.wikipedia.org/wiki/Spatial_reference_system) 
  that will be used when storing values in the database. The default value is 4326 
@@ -362,7 +362,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
  have different SRIDs. As such, this option is dangerous and should be left alone unless 
  you know what you're doing.
 
- * wpgq_metaval_to_geom
+ * wpgm_metaval_to_geom
 
  This filter is called within WP_GeoUtil::metaval_to_geom. It offers an opportunity to 
  support non-GeoJSON geometry types. 
@@ -372,7 +372,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 
  Usage:
  ```
-	add_filter( 'wpgq_metaval_to_geom', 'kml_to_geometry' );
+	add_filter( 'wpgm_metaval_to_geom', 'kml_to_geometry' );
 
 	/**
 	  * @param string $metaval The metavalue that we're about to store.
@@ -389,7 +389,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 	}
  ```
 
- * wpgq_geom_to_geojson
+ * wpgm_geom_to_geojson
 
  This filter is called when converting a geometry from the database into GeoJSON
  so it can be displayed on a map (or whatever). 
@@ -399,7 +399,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 
  Usage:
  ```
-	add_filter( 'wpgq_geom_to_geojson', 'myplugin_geom_to_geojson' );
+	add_filter( 'wpgm_geom_to_geojson', 'myplugin_geom_to_geojson' );
 
 	/**
 	  * @param string $wkt The well known text representation of the geometry
@@ -413,38 +413,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 	}
  ```
 
- * wpgmd_sample_data_to_json
-
- This filter is called when loading a random sample of data for the map of spatial data
- in the dashboard. It is used internally to create a GeoJSON representation of lat/lng 
- fields for display on the map.
-
- Usage:
- ```
-	add_filter( 'wpgmd_sample_data_to_json', 'custom_sample_data' );
-
-	/**
-	 *
-	 * @param array $record A single database query result array.
-	 * $record['the_id'] -- The object ID the metadata belongs to
-	 * $record['meta_key'] -- The meta_key for the metadata (from the postmeta (etc.) table, not the possibly modified version in the postmeta_geo (etc.) table )
-	 * $record['meta_value'] -- The meta_value for the metadata (from the postmeta (etc.) table, not the spatial version from the postmeta_geo (etc.) table)
-	 * $record['geo_meta_value'] -- The meta_value from the postmeta_geo (etc.) table
-	 * $record['geo_meta_key'] -- The meta_key from the postmeta_geo (etc.) table
-	 *
-	 * @param string $metatype The type of object this meta is for (post, user, etc.)
-	 */
-	function custom_sample_data( $record, $metatype ) {
-		if ( 'my_special_geo_meta_key' === $record[ 'geo_meta_key'] ) {
-			// Do something.
-			$record[ 'meta_value' ] = my_custom_geojson( $record[ 'geo_meta_value' ] );
-		}
-
-		return $record;
-	}
- ```
-
- * wpgq_known_capabilities
+ * wpgm_known_capabilities
 
  This filter is available so you can make your custom MySQL functions known to other users of WP-GeoMeta-Lib. 
  Your function will be included in the list returned by `WP_GeoUtil::get_capabilities()`, if it is in fact available
@@ -458,7 +427,7 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 
  Usage: 
  ```
-	add_filter( 'wpgq_known_capabilities', 'myplugin_add_support_for_my_func' );
+	add_filter( 'wpgm_known_capabilities', 'myplugin_add_support_for_my_func' );
 
 	function myplugin_add_support_for_my_func( $all_funcs ) {
 		$all_funcs[] = 'my_custom_mysql_function';
@@ -472,6 +441,37 @@ so that you can extend it to suit your needs. If there's a hook that you need se
 		// Do my stuff
 	} else {
 		// Notify the admin
+	}
+ ```
+
+ * wpgm_extra_sql_functions
+
+ This filter allows you to add additional custom SQL functions to MySQL. Combined with wpgm_known_capabilites
+ you can fully integrate your custom SQL into WP-GeoMeta-Lib. 
+
+ This filter produces an array of file system paths to files containing SQL functions. The files should use
+`$$` as the delimiter for the function. Please see any of the .sql files in this project for examples.
+
+ Usage:
+ ```
+	add_filter( 'wpgm_extra_sql_functions', 'myplugin_add_extra_sql' );
+
+	function myplugin_add_extra_sql( $all_sql_files ) {
+
+		$my_sql_files = array(
+			'custom_func1.sql',
+			'custom_func2.sql'
+		);
+
+		foreach( $my_sql_files as $my_file ) {
+			$full_path = dirname( __FILE__ ) . '/sql/' . $my_file;
+
+			if ( !in_array( $full_path, $all_sql_files ) ) {
+				$all_sql_files[] = $full_path;
+			}
+		}
+
+		return $all_sql_files;
 	}
  ```
 

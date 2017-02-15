@@ -260,10 +260,18 @@ class WP_GeoUtil {
 	 * Check for any additional capabilities after plugins are loaded.
 	 */
 	public static function plugins_loaded() {
-		WP_GeoUtil::$srid = apply_filters( 'wp_geoquery_srid', 4326 );
+
+		WP_GeoUtil::$srid = apply_filters( 'wpgm_geoquery_srid', 4326 );
+
+		/* This filter has been deprecated and will be removed in a future version. */
+		WP_GeoUtil::$srid = apply_filters( 'wp_geoquery_srid', WP_GeoUtil::$srid );
 
 		$orig_funcs = array_map('strtolower',WP_GeoUtil::$all_funcs);
+		WP_GeoUtil::$all_funcs = apply_filters( 'wpgm_known_capabilities', WP_GeoUtil::$all_funcs);
+
+		/* This filter has been deprecated and will be removed in a future version. */
 		WP_GeoUtil::$all_funcs = apply_filters( 'wpgq_known_capabilities', WP_GeoUtil::$all_funcs);
+
 		$new_funcs = array_map('strtolower',WP_GeoUtil::$all_funcs);
 		$diff = array_diff( $new_funcs, $orig_funcs );
 		if ( count( $diff ) > 0 ) {
@@ -387,7 +395,11 @@ class WP_GeoUtil {
 	 */
 	public static function metaval_to_geom( $metaval = false, $force_multi = false) {
 
-		$maybe_geom = apply_filters( 'wpgq_metaval_to_geom', $metaval );
+		$maybe_geom = apply_filters( 'wpgm_metaval_to_geom', $metaval );
+
+		/* This filter has been deprecated and will be removed in a future version. */
+		$maybe_geom = apply_filters( 'wpgq_metaval_to_geom', $maybe_geom );
+
 		if ( self::is_geom( $maybe_geom ) ) {
 			return $maybe_geom;
 		}
@@ -452,7 +464,10 @@ class WP_GeoUtil {
 	 * @return A GeoJSON string.
 	 */
 	public static function geom_to_geojson( $wkt ) {
-		$maybe_geojson = apply_filters( 'wpgq_geom_to_geojson', $wkt );
+		$maybe_geojson = apply_filters( 'wpgm_geom_to_geojson', $wkt );
+
+		/* This filter has been deprecated and will be removed in a future version. */
+		$maybe_geojson = apply_filters( 'wpgq_geom_to_geojson', $maybe_geojson );
 		if ( self::is_geojson( $maybe_geojson ) ) {
 			return $maybe_geojson;
 		}

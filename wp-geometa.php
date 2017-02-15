@@ -1,6 +1,6 @@
 <?php
 /**
- * This class handles creating spatial tables saving geo metadata
+ * This class handles creating spatial tables and saving geo metadata
  *
  * @package wp-geometa
  * @link https://github.com/cimburadotcom/WP-GeoMeta
@@ -68,6 +68,12 @@ class WP_GeoMeta {
 	 */
 	public static $latlngs_index = array();
 
+	/**
+	 * List of extra SQL files to load.
+	 *
+	 * @var $extra_sql
+	 */
+	private $extra_sql = array( 'first_geometry.sql', 'buffer_point.sql' , 'distance_point.sql', 'point_bearing_distance.sql' );
 
 	/**
 	 * Singleton variable
@@ -99,9 +105,18 @@ class WP_GeoMeta {
 			}
 		}
 
-		add_filter( 'wpgm_pre_metaval_to_geom', array( $this, 'handle_latlng_meta' ), 10, 2 );
-		add_filter( 'wpgm_populate_geo_tables', array( $this, 'populate_latlng_geo' ) );
-		add_filter( 'wpgm_pre_delete_geometa', array( $this, 'delete_latlng_geo' ), 10, 5 );
+		add_filter( 'wpgm_pre_metaval_to_geom', array( $this, 'wpgm_pre_metaval_to_geom' ), 10, 2 );
+		add_filter( 'wpgm_populate_geo_tables', array( $this, 'wpgm_populate_geo_tables' ) );
+		add_filter( 'wpgm_pre_delete_geometa', array( $this, 'wpgm_pre_delete_geometa' ), 10, 5 );
+		add_filter( 'wpgm_extra_sql_functions', array( $this, 'wpgm_extra_sql_functions' ) );
+	}
+
+	/**
+	 * Install the tables and custom SQL queries
+	 */
+	public function install() {
+		$this->create_geo_tables();
+		$this->install_extra_sql_functions();
 	}
 
 	/**
@@ -199,12 +214,27 @@ class WP_GeoMeta {
 
 		$wpdb->suppress_errors( $suppress );
 		$wpdb->show_errors( $errors );
+	}
+
+	/**
+	 * Install handy extra SQL functions
+	 */
+	public function install_extra_sql_functions() {
+		global $wpdb;
+
+		$sql_files = apply_filters( 'wpgm_extra_sql_functions', array() );
+
+		$suppress = $wpdb->suppress_errors( true );
+		$errors = $wpdb->show_errors( false );
 
 		// These files add extra SQL support
-		$extra_sql = array( 'first_geometry.sql', 'buffer_point.sql' , 'distance_point.sql', 'point_bearing_distance.sql' );
-		foreach( $extra_sql as $sql_file ) {
-			$sql_code = file_get_contents( __DIR__ . '/sql/' . $sql_file );
-			// $sql_code = preg_replace('DELIMITER.*','',$sql_code );
+		foreach( $sql_files as $sql_file ) {
+
+			if ( !is_file( $sql_file ) ) {
+				continue;
+			}
+
+			$sql_code = file_get_contents( $sql_file );
 			$sql_code = explode('$$', $sql_code);
 			$sql_code = array_map('trim',$sql_code);
 			$sql_code = array_filter($sql_code, function($statement){
@@ -221,12 +251,23 @@ class WP_GeoMeta {
 				$a = 1;
 			}
 		}
+
+		$wpdb->suppress_errors( $suppress );
+		$wpdb->show_errors( $errors );
 	}
 
 	/**
 	 * Un-create the geo tables
 	 */
 	public function uninstall() {
+		$this->uninstall_tables();
+		$this->uninstall_extra_sql_functions();
+	}
+
+	/**
+	 * Un-create the geo tables
+	 */
+	public function uninstall_tables() {
 		global $wpdb;
 
 		$suppress = $wpdb->suppress_errors( true );
@@ -237,11 +278,28 @@ class WP_GeoMeta {
 			$wpdb->query( $drop ); // @codingStandardsIgnoreLine
 		}
 
-		$extra_sql = array( 'first_geometry.sql', 'buffer_point.sql' , 'distance_point.sql', 'point_bearing_distance.sql' );
+		$wpdb->suppress_errors( $suppress );
+		$wpdb->show_errors( $errors );
+	}
 
-		foreach( $extra_sql as $sql_file ) {
-			$sql_code = file_get_contents( __DIR__ . '/sql/' . $sql_file );
-			// $sql_code = preg_replace('DELIMITER.*','',$sql_code );
+	/**
+	 * Remove the extra SQL functions
+	 */
+	public function uninstall_extra_sql_functions() {
+		global $wpdb;
+
+		$sql_files = apply_filters( 'wpgm_extra_sql_functions', array() );
+
+		$suppress = $wpdb->suppress_errors( true );
+		$errors = $wpdb->show_errors( false );
+
+		foreach( $sql_files as $sql_file ) {
+
+			if ( ! is_file( $sql_file ) ) {
+				continue;
+			}
+
+			$sql_code = file_get_contents( $sql_file );
 			$sql_code = explode('$$', $sql_code);
 			$sql_code = array_map('trim',$sql_code);
 			$sql_code = array_filter($sql_code, function($statement){
@@ -372,15 +430,15 @@ array(
 		);
 // @codingStandardsIgnoreEnd
 
-		if ( ! $result ) {
-			return false;
-		}
+if ( ! $result ) {
+	return false;
+}
 
-		$mid = (int) $wpdb->insert_id;
+$mid = (int) $wpdb->insert_id;
 
-		wp_cache_delete( $object_id, $meta_type . '_metageo' );
+wp_cache_delete( $object_id, $meta_type . '_metageo' );
 
-		return $mid;
+return $mid;
 	}
 
 	/**
@@ -462,7 +520,7 @@ array(
 				AND $metatable.$meta_pkey > $maxid 
 				ORDER BY $metatable.$meta_pkey
 				LIMIT 100";
-				
+
 				$res = $wpdb->get_results( $q,ARRAY_A ); // @codingStandardsIgnoreLine
 				$found_rows = count( $res );
 
@@ -518,7 +576,7 @@ array(
 	 *
 	 * @param string $object_type Which WP type is it? (comment/user/post/term).
 	 */
-	public static function handle_latlng_meta( $meta_args, $object_type ) {
+	public static function wpgm_pre_metaval_to_geom( $meta_args, $object_type ) {
 		$object_id = $meta_args[1];
 		$metakey = $meta_args[2];
 		$metaval = $meta_args[3];
@@ -564,7 +622,7 @@ array(
 	 *
 	 * It gives us an opportunity to re-populate the meta table if needed.
 	 */
-	public function populate_latlng_geo() {
+	public function wpgm_populate_geo_tables() {
 		global $wpdb;
 
 		$latitude_fields = array();
@@ -641,7 +699,7 @@ array(
 	 *
 	 * @return The array of meta IDs to delete.
 	 */
-	public function delete_latlng_geo( $meta_ids, $type, $object_id, $meta_key, $meta_value ) {
+	public function wpgm_pre_delete_geometa( $meta_ids, $type, $object_id, $meta_key, $meta_value ) {
 		global $wpdb;
 
 		if ( ! array_key_exists( $meta_key, WP_GeoMeta::$latlngs_index ) ) {
@@ -671,5 +729,17 @@ array(
 		$meta_ids[] = $meta[ $id_column ];
 
 		return $meta_ids;
+	}
+
+	/**
+	 * Callback to turn $this->extra_sql into absolute paths.
+	 */
+	public function wpgm_extra_sql_functions( $sql_files ) {
+		foreach( $this->extra_sql as $extra_sql ) {
+			$full_path = dirname( __FILE__ ) . '/sql/' . $extra_sql;
+			if ( !in_array( $full_path, $sql_files ) ) {
+				$sql_files[] = $full_path;
+			}
+		}
 	}
 }

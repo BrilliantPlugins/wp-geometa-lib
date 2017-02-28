@@ -67,7 +67,7 @@ to support other formats though!
 FeatureClass objects and individual Feature objects will both be accepted. String
 object and array representations of GeoJSON are be accepted.
 
-WP-GeoMeta stores data in EPSG:4326 by default, which is (a) the default format
+WP-GeoMeta stores data in EPSG:4326 by default, which is (a) the official format
 for GeoJSON and (b) the most common format for web maps.
 
 WP-GeoMeta does't act on any of the ```get_{$meta_type}_meta``` filters because we want the 
@@ -77,9 +77,3 @@ beginning.
 WP_GeoQuery adds support to the ```meta_query``` argument (in WP_Query, get_posts, WP_User_Query, get_users, WP_Comment_Query and get_comments) for known spatial comparison operations.
 
 See the [README.md](README.md) for examples of how to use WP_GeoQuery.
-
-Related Projects
-----------------
-* https://github.com/cimburadotcom/WP-GeoJSON-Loader
-* https://github.com/cimburadotcom/MySQL_Stored_Geo_Functions
-* https://github.com/cimburadotcom/wp-spatial-capabilities-check

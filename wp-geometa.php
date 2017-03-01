@@ -204,11 +204,11 @@ class WP_GeoMeta {
 
 		foreach ( $this->meta_types as $type ) {
 			$show_index		= 'SHOW INDEX FROM ' . _get_meta_table( $type ) . '_geo WHERE Key_name=\'meta_val_spatial_idx\';';
-			$add_index	= 'CREATE SPATIAL INDEX meta_val_spatial_idx ON ' . _get_meta_table( $type ) . '_geo (meta_value);'; 
+			$add_index	= 'CREATE SPATIAL INDEX meta_val_spatial_idx ON ' . _get_meta_table( $type ) . '_geo (meta_value);';
 
-			$found_query = $wpdb->query( $show_index );
+			$found_query = $wpdb->query( $show_index ); // @codingStandardsIgnoreLine
 			if ( $found_query === 0 ) {
-				$wpdb->query( $add_index );
+				$wpdb->query( $add_index ); // @codingStandardsIgnoreLine
 			}
 		}
 
@@ -227,28 +227,27 @@ class WP_GeoMeta {
 		$suppress = $wpdb->suppress_errors( true );
 		$errors = $wpdb->show_errors( false );
 
-		// These files add extra SQL support
-		foreach( $sql_files as $sql_file ) {
+		// These files add extra SQL support.
+		foreach ( $sql_files as $sql_file ) {
 
-			if ( !is_file( $sql_file ) ) {
+			if ( ! is_file( $sql_file ) ) {
 				continue;
 			}
 
-			$sql_code = file_get_contents( $sql_file );
-			$sql_code = explode('$$', $sql_code);
-			$sql_code = array_map('trim',$sql_code);
-			$sql_code = array_filter($sql_code, function($statement){
+			$sql_code = wpcom_vip_file_get_contents( $sql_file );
+			$sql_code = explode( '$$', $sql_code );
+			$sql_code = array_map( 'trim',$sql_code );
+			$sql_code = array_filter($sql_code, function( $statement ) {
 				if ( empty( $statement ) ) {
 					return false;
 				}
-				if ( strpos($statement, 'DELIMITER') !== FALSE ) {
+				if ( strpos( $statement, 'DELIMITER' ) !== false ) {
 					return false;
 				}
 				return true;
 			});
-			foreach( $sql_code as $statement ) {
-				$res = $wpdb->query( $statement );
-				$a = 1;
+			foreach ( $sql_code as $statement ) {
+				$res = $wpdb->query( $statement ); // @codingStandardsIgnoreLine
 			}
 		}
 
@@ -293,24 +292,23 @@ class WP_GeoMeta {
 		$suppress = $wpdb->suppress_errors( true );
 		$errors = $wpdb->show_errors( false );
 
-		foreach( $sql_files as $sql_file ) {
+		foreach ( $sql_files as $sql_file ) {
 
 			if ( ! is_file( $sql_file ) ) {
 				continue;
 			}
 
-			$sql_code = file_get_contents( $sql_file );
-			$sql_code = explode('$$', $sql_code);
-			$sql_code = array_map('trim',$sql_code);
-			$sql_code = array_filter($sql_code, function($statement){
-				if ( strpos($statement, 'DROP FUNCTION') === FALSE ) {
+			$sql_code = wpcom_vip_file_get_contents( $sql_file );
+			$sql_code = explode( '$$', $sql_code );
+			$sql_code = array_map( 'trim',$sql_code );
+			$sql_code = array_filter($sql_code, function( $statement ) {
+				if ( strpos( $statement, 'DROP FUNCTION' ) === false ) {
 					return false;
 				}
 				return true;
 			});
-			foreach( $sql_code as $statement ) {
-				$res = $wpdb->query( $statement );
-				$a = 1;
+			foreach ( $sql_code as $statement ) {
+				$res = $wpdb->query( $statement ); // @codingStandardsIgnoreLine
 			}
 		}
 
@@ -430,15 +428,15 @@ array(
 		);
 // @codingStandardsIgnoreEnd
 
-if ( ! $result ) {
-	return false;
-}
+		if ( ! $result ) {
+			return false;
+		}
 
-$mid = (int) $wpdb->insert_id;
+		$mid = (int) $wpdb->insert_id;
 
-wp_cache_delete( $object_id, $meta_type . '_metageo' );
+		wp_cache_delete( $object_id, $meta_type . '_metageo' );
 
-return $mid;
+		return $mid;
 	}
 
 	/**
@@ -733,11 +731,13 @@ return $mid;
 
 	/**
 	 * Callback to turn $this->extra_sql into absolute paths.
+	 *
+	 * @param array $sql_files An array of extra SQL files to load functions from.
 	 */
 	public function wpgm_extra_sql_functions( $sql_files ) {
-		foreach( $this->extra_sql as $extra_sql ) {
+		foreach ( $this->extra_sql as $extra_sql ) {
 			$full_path = dirname( __FILE__ ) . '/sql/' . $extra_sql;
-			if ( !in_array( $full_path, $sql_files ) ) {
+			if ( ! in_array( $full_path, $sql_files, true ) ) {
 				$sql_files[] = $full_path;
 			}
 		}

@@ -1,20 +1,19 @@
 <?php
-
 /**
- * This is the loader file for WP-GeoMeta-lib. 
+ * This is the loader file for WP-GeoMeta-lib.
+ *
+ * @package wp-geometa-lib
  *
  * To include spatial metadata support in your plugin, simply include this file.
  *
  * WP-GeoMeta-lib handles having multiple versions of itself installed corretly, always loading the latest version.
  *
- * It also handles setting up the spatial meta tables, so this file should be included directly, and not inside a hook or action
- *
+ * It also handles setting up the spatial meta tables, so this file should be included directly, and not inside a hook or action.
  */
-
 
 defined( 'ABSPATH' ) or die( 'No direct access' );
 
-$wp_geometa_version = '0.3.2'; // Also change down in wp_geometa_load_older_version()
+$wp_geometa_version = '0.3.2'; // Also change down in wp_geometa_load_older_version().
 
 /**
  * Gather some self metadata so that if WP-GeoMeta is included as a lib in multiple plugins
@@ -30,15 +29,16 @@ $wp_geometa_db_version = get_option( 'wp_geometa_db_version', '0.0.0' );
  */
 $wp_geometa_version_status = version_compare( $wp_geometa_version, $wp_geometa_max_version );
 
-
-// If our version is higher than the version in wp_options, then bump the DB version 
-// so that our verison will be the one to load next time.
+/*
+ * If our version is higher than the version in wp_options, then bump the DB version.
+ * so that our verison will be the one to load next time.
+ */
 if ( 1 === $wp_geometa_version_status ) {
 	update_option( 'wp_geometa_version', $wp_geometa_version );
-} 
+}
 
-// If our version is equal or higher to the db version, try to load our instance
-if ( 0 >= $wp_geometa_version_status || '0.0.0' === $wp_geometa_max_version ) {
+// If our version is equal or higher to the db version, try to load our instance.
+if ( $wp_geometa_version_status >= 0 || '0.0.0' === $wp_geometa_max_version ) {
 
 	// Other instances of WP_GeoMeta shouldn't have loaded these classes
 	// unless they're the same version as this instance.
@@ -85,6 +85,8 @@ if ( ! function_exists( 'wp_geometa_load_older_version' ) ) {
 			$wpgq = WP_GeoQuery::get_instance();
 
 			$wp_geometa_version = '0.3.2';
+			define( 'WP_GEOMETA_VERSION', $wp_geometa_version );
+
 			$wp_geometa_max_version = get_option( 'wp_geometa_version', '0.0.0' );
 			$wp_geometa_db_version = get_option( 'wp_geometa_db_version', '0.0.0' );
 

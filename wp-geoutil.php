@@ -266,13 +266,13 @@ class WP_GeoUtil {
 		/* This filter has been deprecated and will be removed in a future version. */
 		WP_GeoUtil::$srid = apply_filters( 'wp_geoquery_srid', WP_GeoUtil::$srid );
 
-		$orig_funcs = array_map('strtolower',WP_GeoUtil::$all_funcs);
-		WP_GeoUtil::$all_funcs = apply_filters( 'wpgm_known_capabilities', WP_GeoUtil::$all_funcs);
+		$orig_funcs = array_map( 'strtolower',WP_GeoUtil::$all_funcs );
+		WP_GeoUtil::$all_funcs = apply_filters( 'wpgm_known_capabilities', WP_GeoUtil::$all_funcs );
 
 		/* This filter has been deprecated and will be removed in a future version. */
-		WP_GeoUtil::$all_funcs = apply_filters( 'wpgq_known_capabilities', WP_GeoUtil::$all_funcs);
+		WP_GeoUtil::$all_funcs = apply_filters( 'wpgq_known_capabilities', WP_GeoUtil::$all_funcs );
 
-		$new_funcs = array_map('strtolower',WP_GeoUtil::$all_funcs);
+		$new_funcs = array_map( 'strtolower',WP_GeoUtil::$all_funcs );
 		$diff = array_diff( $new_funcs, $orig_funcs );
 		if ( count( $diff ) > 0 ) {
 			WP_GeoUtil::get_capabilities( true, false );
@@ -344,7 +344,7 @@ class WP_GeoUtil {
 	 * Convert a metaval to GeoJSON
 	 *
 	 * @param anything $metaval The value to turn into GeoJSON.
-	 * @param string $return_type The supported types are 'string' and 'array'.
+	 * @param string   $return_type The supported types are 'string' and 'array'.
 	 */
 	public static function metaval_to_geojson( $metaval, $return_type = 'string' ) {
 		$metaval = maybe_unserialize( $metaval );
@@ -353,7 +353,7 @@ class WP_GeoUtil {
 			return $metaval;
 		}
 
-		if ( empty( $metaval) ) {
+		if ( empty( $metaval ) ) {
 			return false;
 		}
 
@@ -374,7 +374,7 @@ class WP_GeoUtil {
 		// Last check!
 		$string_metaval = wp_json_encode( $metaval );
 
-		if ( !self::is_geojson( $metaval ) ) {
+		if ( ! self::is_geojson( $metaval ) ) {
 			return false;
 		}
 
@@ -389,11 +389,11 @@ class WP_GeoUtil {
 	 * We're going to support single GeoJSON features and FeatureCollections in either string, object or array format.
 	 *
 	 * @param mixed $metaval The meta value to try to convert to WKT.
-	 * @param bool $force_multi Should the value be turned into a MULTI type geometry? Default is false. This is set to true by WP-GeoMeta before storing values in the database.
+	 * @param bool  $force_multi Should the value be turned into a MULTI type geometry? Default is false. This is set to true by WP-GeoMeta before storing values in the database.
 	 *
 	 * @return A WKT geometry string.
 	 */
-	public static function metaval_to_geom( $metaval = false, $force_multi = false) {
+	public static function metaval_to_geom( $metaval = false, $force_multi = false ) {
 
 		$maybe_geom = apply_filters( 'wpgm_metaval_to_geom', $metaval );
 
@@ -404,14 +404,14 @@ class WP_GeoUtil {
 			return $maybe_geom;
 		}
 
-		// Everything becomes GeoJSON so that the rest of this function will be simpler
+		// Everything becomes GeoJSON so that the rest of this function will be simpler.
 		$make_string = ( $force_multi ? 'string' : 'array' );
 		$metaval = self::metaval_to_geojson( $metaval, $make_string );
 
-		if ( $metaval === false ) {
+		if ( false === $metaval ) {
 			return $metaval;
 		}
-		
+
 		if ( $force_multi ) {
 			$metaval = self::merge_geojson( $metaval );
 		}
@@ -420,9 +420,9 @@ class WP_GeoUtil {
 			return false;
 		}
 
-		// Stringify any arrays
+		// Stringify any arrays.
 		if ( is_array( $metaval ) ) {
-			$metaval = json_encode( $metaval );
+			$metaval = wp_json_encode( $metaval );
 		}
 
 		// Convert GeoJSON to WKT.
@@ -484,7 +484,7 @@ class WP_GeoUtil {
 			stripos( $maybe_geojson, 'POLYGON' ) !== 0 &&
 			stripos( $maybe_geojson, 'MULTIPOINT' ) !== 0 &&
 			stripos( $maybe_geojson, 'MULTILINESTRING' ) !== 0 &&
-			stripos( $maybe_geojson, 'MULTIPOLYGON' ) !== 0 && 
+			stripos( $maybe_geojson, 'MULTIPOLYGON' ) !== 0 &&
 			stripos( $maybe_geojson, 'GEOMETRYCOLLECTION' ) !== 0
 		) {
 			return false;
@@ -494,8 +494,8 @@ class WP_GeoUtil {
 			$geom = self::$geowkt->read( $maybe_geojson );
 			$geojson = self::$geojson->write( $geom );
 
-			// Do we need to wrap it? 
-			if ( !empty( $geojson ) && strpos( $geojson, '"type":"Feature"' ) === false ) {
+			// Do we need to wrap it?
+			if ( ! empty( $geojson ) && strpos( $geojson, '"type":"Feature"' ) === false ) {
 				$geojson = '{"type":"Feature","geometry":' . $geojson . ',"properties":{}}';
 			}
 
@@ -544,22 +544,22 @@ class WP_GeoUtil {
 	 * Check if a value is in GeoJSON, which is our code-ready forma.
 	 *
 	 * @param anything $maybe_geojson Check if a value is GeoJSON or not.
-	 * @param bool $string_only Should GeoJSON compatible strings and objects be counted as GeoJSON? Default is false (allow arrays/objects).
+	 * @param bool     $string_only Should GeoJSON compatible strings and objects be counted as GeoJSON? Default is false (allow arrays/objects).
 	 *
 	 * @return boolean
 	 */
 	public static function is_geojson( $maybe_geojson, $string_only = false ) {
 		try {
 
-			if ( !is_string( $maybe_geojson ) && $string_only ) {
+			if ( ! is_string( $maybe_geojson ) && $string_only ) {
 				return false;
 			}
 
 			if ( is_array( $maybe_geojson ) || is_object( $maybe_geojson ) ) {
-				$maybe_geojson = json_encode( $maybe_geojson );
+				$maybe_geojson = wp_json_encode( $maybe_geojson );
 			}
 
-			$maybe_geojson = ( string) $maybe_geojson;
+			$maybe_geojson = (string) $maybe_geojson;
 
 		   	if ( strpos( $maybe_geojson, '{' ) === false || strpos( $maybe_geojson, 'Feature' ) === false || strpos( $maybe_geojson, 'geometry' ) === false ) {
 				return false;
@@ -612,16 +612,16 @@ class WP_GeoUtil {
 
 		foreach ( WP_GeoUtil::$all_funcs as $func ) {
 
-			// First, check to see if a custom function exists
+			// First, check to see if a custom function exists.
 			$q = "SELECT IF( COUNT(*) = 0, 'F' , 'T' ) AS ProcedureExists FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA = '{$wpdb->dbname}' AND ROUTINE_TYPE = 'FUNCTION' AND UCASE(ROUTINE_NAME) = UCASE('$func');";
-			$custom_func = $wpdb->get_var( $q );
+			$custom_func = $wpdb->get_var( $q ); // @codingStandardsIgnoreLine
 
 			if ( 'T' === $custom_func ) {
 				self::$found_funcs[] = $func;
 				continue;
 			}
 
-			// Otherwise check if it's a built-in
+			// Otherwise check if it's a built-in.
 			$q = "SELECT $func() AS worked";
 			$wpdb->query( $q ); // @codingStandardsIgnoreLine
 
@@ -647,43 +647,48 @@ class WP_GeoUtil {
 	}
 
 	/**
-	 * Support calling any geometry function.
+	 * Static magic method to support calling any geometry function.
 	 *
-	 * eg. 
-	 * WP_GeoUtil::Buffer( $geometry, $distance);
+	 * Eg. WP_GeoUtil::Buffer( $geometry, $distance);
+	 *
+	 * @param string $name The name of the function that is being called.
+	 * @param array  $arguments The arguments for the function.
 	 */
 	public static function __callStatic( $name, $arguments ) {
-		if ( in_array( strtolower( $name ), self::get_capabilities() ) ) {
+		if ( in_array( strtolower( $name ), self::get_capabilities(), true ) ) {
 			return self::run_spatial_query( $name, $arguments );
 		}
 	}
 
 	/**
-	 * Run the actual spatial query
+	 * Run the actual spatial query.
 	 *
-	 * Any geometries should be GeoJSON compatible
+	 * Any geometries should be GeoJSON compatible.
 	 *
-	 * Geometry responses will be returned as GeoJSON
+	 * Geometry responses will be returned as GeoJSON.
 	 *
-	 * Other responses will be returned as is
+	 * Other responses will be returned as is.
+	 *
+	 * @param string $name The name of the function that is being called.
+	 * @param array  $arguments The arguments for the function.
 	 */
 	private static function run_spatial_query( $name, $arguments = array() ) {
 		global $wpdb;
 
-		if ( empty($arguments ) ) {
+		if ( empty( $arguments ) ) {
 			return false;
 		}
 
 		$q = 'SELECT ' . $name . '(';
-		foreach( $arguments as $idx => $arg ) {
+		foreach ( $arguments as $idx => $arg ) {
 
 			if ( $idx > 0 ) {
 				$q .= ',';
 			}
 
 			$maybe_geom = self::metaval_to_geom( $arg );
-			if ( $maybe_geom !== false ) {
-				$arguments[$idx] = $maybe_geom;
+			if ( false !== $maybe_geom ) {
+				$arguments[ $idx ] = $maybe_geom;
 				$q .= 'GeomCollFromText(%s)';
 			} else {
 				$q .= '%s';
@@ -691,19 +696,18 @@ class WP_GeoUtil {
 		}
 		$q .= ')';
 
+		/*
+        -- Detect geometry.
+		-- Data is WKB, with a 4 byte leading SRID (which may be 00 00 00 00)
+        -- In big endian it will look like this:
+		-- E6 10    00          00 01 02 00
+		-- srid    endianness   WKB integer code
 
-/*
--- Detect geometry. 
--- Data is WKB, with a 4 byte leading SRID (which may be 00 00 00 00)
--- In big endian it will look like this: 
--- E6 10	00			00 01 02 00
--- srid    endianness   WKB integer code
-
--- In little endian it should look like this: 
--- 10 E6		01 	    01 00 00 02
--- srid    endianness   WKB integer code
--- Note: MySQL appears to use the Z codes, though I can't find actual support for Z values
-*/
+        -- In little endian it should look like this:
+		-- 10 E6        01      01 00 00 02
+		-- srid    endianness   WKB integer code
+		-- Note: MySQL appears to use the Z codes, though I can't find actual support for Z values
+		*/
 
 		$real_q = 'SELECT IF( 
 			COALESCE( SUBSTR(HEX(retval),5,10) IN (
@@ -727,14 +731,14 @@ class WP_GeoUtil {
 				\'0001000006\' -- multipolygon
 			), false) , AsText( retval ), retval ) AS res FROM ( ' . $q . ' AS retval ) rq';
 
-		$sql = $wpdb->prepare( $real_q, $arguments );
+		$sql = $wpdb->prepare( $real_q, $arguments ); // @codingStandardsIgnoreLine
 
-		$res = $wpdb->get_var( $sql );
+		$res = $wpdb->get_var( $sql ); // @codingStandardsIgnoreLine
 
 		$maybe_geojson = self::geom_to_geojson( $res );
-		if ( $maybe_geojson !== false ) {
+		if ( false !== $maybe_geojson ) {
 			return $maybe_geojson;
-		} 
+		}
 
 		return $res;
 	}

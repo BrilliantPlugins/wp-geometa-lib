@@ -233,6 +233,13 @@ class WP_GeoUtil {
 	private static $found_funcs = array();
 
 	/**
+	 * Has plugins loaded been run yet?
+	 *
+	 * @var $plugins_loaded_run
+	 */
+	public static $plugins_loaded_run = false;
+
+	/**
 	 * The instance variable
 	 *
 	 * @var $_instance
@@ -266,17 +273,30 @@ class WP_GeoUtil {
 		/* This filter has been deprecated and will be removed in a future version. */
 		WP_GeoUtil::$srid = apply_filters( 'wp_geoquery_srid', WP_GeoUtil::$srid );
 
-		$orig_funcs = array_map( 'strtolower',WP_GeoUtil::$all_funcs );
-		WP_GeoUtil::$all_funcs = apply_filters( 'wpgm_known_capabilities', WP_GeoUtil::$all_funcs );
+		WP_GeoUtil::get_all_funcs();
 
-		/* This filter has been deprecated and will be removed in a future version. */
-		WP_GeoUtil::$all_funcs = apply_filters( 'wpgq_known_capabilities', WP_GeoUtil::$all_funcs );
+		WP_GeoUtil::$plugins_loaded_run = true;
 
 		$new_funcs = array_map( 'strtolower',WP_GeoUtil::$all_funcs );
 		$diff = array_diff( $new_funcs, $orig_funcs );
 		if ( count( $diff ) > 0 ) {
 			WP_GeoUtil::get_capabilities( true, false );
 		}
+	}
+
+	/**
+	 * This function loads all known functions, including applying filters to load from other plugins.
+	 */
+	public static function get_all_funcs() {
+		$orig_funcs = array_map( 'strtolower',WP_GeoUtil::$all_funcs );
+		WP_GeoUtil::$all_funcs = apply_filters( 'wpgm_known_capabilities', WP_GeoUtil::$all_funcs );
+
+		/* This filter has been deprecated and will be removed in a future version. */
+		WP_GeoUtil::$all_funcs = apply_filters( 'wpgq_known_capabilities', WP_GeoUtil::$all_funcs );
+
+		WP_GeoUtil::$all_funcs = array_unique( WP_GeoUtil::$all_funcs );
+
+		return WP_GeoUtil::$all_funcs;
 	}
 
 	/**
@@ -586,9 +606,14 @@ class WP_GeoUtil {
 	 *
 	 * @param bool $retest Should we re-check and re-store our capabilities.
 	 * @param bool $lower Should all functions be lower-cased before returning.
+	 * @param bool $cache_results Should our known functions be cached once they're generated.
 	 */
-	public static function get_capabilities( $retest = false, $lower = true ) {
+	public static function get_capabilities( $retest = false, $lower = true, $cache_results = true ) {
 		global $wpdb;
+
+		if ( WP_GeoUtil::$plugins_loaded_run !== true ) {
+			WP_GeoUtil::plugins_loaded();
+		}
 
 		if ( ! $retest ) {
 			if ( empty( self::$found_funcs ) ) {
@@ -634,9 +659,11 @@ class WP_GeoUtil {
 		$wpdb->suppress_errors( $suppress );
 		$wpdb->show_errors( $errors );
 
-		update_option( 'wp_geometa_capabilities',self::$found_funcs, false );
+		if ( $cache_results ) {
+			update_option( 'wp_geometa_capabilities',self::$found_funcs, false );
+		}
 
-		return self::get_capabilities( false, $lower );
+		return self::get_capabilities( false, $lower, $cache_results );
 	}
 
 	/**

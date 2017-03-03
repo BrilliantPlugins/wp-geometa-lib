@@ -56,6 +56,8 @@ Quick Start
    register_activation_hook( __FILE__ , array('WP_GeoMeta','install'));
  ```
 
+ If you already have your own activation hook, you can simply add WP_GeoMeta::install() to your hook.
+
 4. Save GeoJSON metadata!
  
  ```

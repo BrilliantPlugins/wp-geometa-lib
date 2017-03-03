@@ -125,6 +125,8 @@ class WP_GeoMeta {
 	public static function install() {
 		$wpgm = WP_GeoMeta::get_instance();
 		update_option( 'wp_geometa_db_version', WP_GEOMETA_VERSION );
+
+		// This will go away once autoloading is configured.
 		update_option( 'wp_geometa_version', WP_GEOMETA_VERSION );
 		$wpgm->create_geo_tables();
 		$wpgm->install_extra_sql_functions();
@@ -134,8 +136,8 @@ class WP_GeoMeta {
 	 * Upgrade databases, if they exist.
 	 */
 	public function upgrade() {
-		$wpgm->create_geo_tables();
-		$wpgm->install_extra_sql_functions();
+		$this->create_geo_tables();
+		$this->install_extra_sql_functions();
 
 		update_option( 'wp_geometa_db_version', WP_GEOMETA_VERSION );
 		update_option( 'wp_geometa_version', WP_GEOMETA_VERSION );

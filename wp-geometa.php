@@ -9,19 +9,21 @@
  * @license GNU GPL v2
  */
 
-defined( 'ABSPATH' ) or die( 'No direct access' );
-
-/**
- * This class uses GeoUtil
- */
-require_once( dirname( __FILE__ ) . '/wp-geoutil.php' );
-
 /**
  * WP_GeoMeta is responsible for detecting when the user
  * saves GeoJSON and adding a spatial version to the meta_geo
  * tables
  */
 class WP_GeoMeta {
+	/**
+	 * The version of WP_GeoMeta.
+	 *
+	 * Gets set by autoloader
+	 *
+	 * @var $version
+	 */
+	public static $version;
+
 	/**
 	 * Seems like if we call dbDelta twice in rapid succession then we end up
 	 * with a MySQL error, at least on MySQL 5.5. Other versions untested.
@@ -90,6 +92,10 @@ class WP_GeoMeta {
 			self::$_instance = new self;
 		}
 
+		if ( ! defined( 'WP_GEOMETA_VERSION' ) && ! empty( WP_GeoMeta::$version ) ) {
+			define( 'WP_GEOMETA_VERSION', WP_GeoMeta::$version );
+		}
+
 		return self::$_instance;
 	}
 
@@ -105,6 +111,8 @@ class WP_GeoMeta {
 			}
 		}
 
+		WP_GeoMeta::add_latlng_field( 'geo_latitude', 'geo_longitude', 'geo_' );
+
 		add_filter( 'wpgm_pre_metaval_to_geom', array( $this, 'wpgm_pre_metaval_to_geom' ), 10, 2 );
 		add_filter( 'wpgm_populate_geo_tables', array( $this, 'wpgm_populate_geo_tables' ) );
 		add_filter( 'wpgm_pre_delete_geometa', array( $this, 'wpgm_pre_delete_geometa' ), 10, 5 );
@@ -116,6 +124,8 @@ class WP_GeoMeta {
 	 */
 	public static function install() {
 		$wpgm = WP_GeoMeta::get_instance();
+		update_option( 'wp_geometa_db_version', WP_GEOMETA_VERSION );
+		update_option( 'wp_geometa_version', WP_GEOMETA_VERSION );
 		$wpgm->create_geo_tables();
 		$wpgm->install_extra_sql_functions();
 	}
@@ -123,9 +133,15 @@ class WP_GeoMeta {
 	/**
 	 * Upgrade databases, if they exist.
 	 */
-	public function upgrade_if_exist() {
+	public function upgrade() {
 		$wpgm->create_geo_tables();
 		$wpgm->install_extra_sql_functions();
+
+		update_option( 'wp_geometa_db_version', WP_GEOMETA_VERSION );
+		update_option( 'wp_geometa_version', WP_GEOMETA_VERSION );
+
+		$wp_geoutil = WP_GeoUtil::get_instance();
+		$wp_geoutil->get_capabilities( true );
 	}
 
 	/**
@@ -243,7 +259,7 @@ class WP_GeoMeta {
 				continue;
 			}
 
-			$sql_code = wpcom_vip_file_get_contents( $sql_file );
+			$sql_code = file_get_contents( $sql_file ); // @codingStandardsIgnoreLine
 			$sql_code = explode( '$$', $sql_code );
 			$sql_code = array_map( 'trim',$sql_code );
 			$sql_code = array_filter($sql_code, function( $statement ) {
@@ -307,7 +323,7 @@ class WP_GeoMeta {
 				continue;
 			}
 
-			$sql_code = wpcom_vip_file_get_contents( $sql_file );
+			$sql_code = file_get_contents( $sql_file ); // @codingStandardsIgnoreLine
 			$sql_code = explode( '$$', $sql_code );
 			$sql_code = array_map( 'trim',$sql_code );
 			$sql_code = array_filter($sql_code, function( $statement ) {
@@ -750,5 +766,6 @@ array(
 				$sql_files[] = $full_path;
 			}
 		}
+		return $sql_files;
 	}
 }

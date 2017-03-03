@@ -7,8 +7,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd $DIR/..
 
-phpcbf --standard=WordPress ./wp-geometa-lib-loader.php
-phpcbf --standard=WordPress ./wp-geometa-lib.php
-phpcbf --standard=WordPress ./wp-geoutil.php
-phpcbf --standard=WordPress ./wp-geometa.php
-phpcbf --standard=WordPress ./wp-geoquery.php
+php -l ./wp-geometa-lib-loader.php
+php -l ./wp-geometa-lib.php
+php -l ./wp-geoutil.php
+php -l ./wp-geometa.php
+php -l ./wp-geoquery.php

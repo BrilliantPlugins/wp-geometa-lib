@@ -9,13 +9,6 @@
  * @license GNU GPL v2
  */
 
-defined( 'ABSPATH' ) or die( 'No direct access' );
-
-/**
- * Include geoPHP for this function
- */
-require_once( dirname( __FILE__ ) . '/geoPHP/geoPHP.inc' );
-
 /**
  * Some spatial utilities that are used by both WP_GeoQuery and WP_GeoMeta
  * and which may be available to developers at some point.
@@ -252,14 +245,34 @@ class WP_GeoUtil {
 	 */
 	public static function get_instance() {
 		if ( is_null( self::$_instance ) ) {
+			global $wp_actions;
 			self::$_instance = new self;
-			self::$geojson = new GeoJSON();
-			self::$geowkt = new WKT();
 			self::$srid = 4326;
-			add_action( 'plugins_loaded', array( 'WP_GeoUtil', 'plugins_loaded' ) );
+
+			if ( isset( $wp_actions['plugins_loaded'] ) ) {
+				WP_GeoUtil::plugins_loaded();
+			} else {
+				add_action( 'plugins_loaded', array( 'WP_GeoUtil', 'plugins_loaded' ) );
+			}
+
+			spl_autoload_register( array( 'WP_GeoUtil', 'spl_autoload_register' ) );
 		}
 
 		return self::$_instance;
+	}
+
+	/**
+	 * Handle autoloading when looking for the geoPHP class.
+	 *
+	 * @param string $class_name The class name that PHP is looking for.
+	 */
+	public static function spl_autoload_register( $class_name ) {
+		if ( in_array( $class_name, array( 'WKT', 'GeoJSON' ), true ) ) {
+			/**
+			* Include geoPHP for this function
+			*/
+			require_once( dirname( __FILE__ ) . '/geoPHP/geoPHP.inc' );
+		}
 	}
 
 	/**
@@ -449,7 +462,7 @@ class WP_GeoUtil {
 
 		// Convert GeoJSON to WKT.
 		try {
-			$geom = self::$geojson->read( (string) $metaval );
+			$geom = self::get_geojson()->read( (string) $metaval );
 			if ( is_null( $geom ) ) {
 				return false;
 			}
@@ -458,7 +471,7 @@ class WP_GeoUtil {
 		}
 
 		try {
-			$wkt = self::$geowkt->write( $geom );
+			$wkt = self::get_wkt()->write( $geom );
 
 			/*
              * MUTLI all the things because MySQL 5.7 (at least, maybe others) doesn't
@@ -513,8 +526,8 @@ class WP_GeoUtil {
 		}
 
 		try {
-			$geom = self::$geowkt->read( $maybe_geojson );
-			$geojson = self::$geojson->write( $geom );
+			$geom = self::get_wkt()->read( $maybe_geojson );
+			$geojson = self::get_geojson()->write( $geom );
 
 			// Do we need to wrap it?
 			if ( ! empty( $geojson ) && strpos( $geojson, '"type":"Feature"' ) === false ) {
@@ -551,7 +564,7 @@ class WP_GeoUtil {
 				return false;
 			}
 
-			$what = self::$geowkt->read( (string) $maybe_geom );
+			$what = self::get_wkt()->read( (string) $maybe_geom );
 			if ( null !== $what ) {
 				return true;
 			} else {
@@ -587,7 +600,7 @@ class WP_GeoUtil {
 				return false;
 			}
 
-			$what = self::$geojson->read( $maybe_geojson );
+			$what = self::get_geojson()->read( $maybe_geojson );
 			if ( null !== $what ) {
 				return true;
 			} else {
@@ -613,7 +626,7 @@ class WP_GeoUtil {
 	public static function get_capabilities( $retest = false, $lower = true, $cache_results = true ) {
 		global $wpdb;
 
-		if ( WP_GeoUtil::$plugins_loaded_run !== true ) {
+		if ( true !== WP_GeoUtil::$plugins_loaded_run ) {
 			WP_GeoUtil::plugins_loaded();
 		}
 
@@ -771,6 +784,25 @@ class WP_GeoUtil {
 
 		return $res;
 	}
-}
 
-WP_GeoUtil::get_instance();
+	/**
+	 * Get the GeoJSON object, creating it if needed.
+	 */
+	private static function get_geojson() {
+		if ( ! isset( self::$geojson ) ) {
+			self::$geojson = new GeoJSON();
+		}
+
+		return self::$geojson;
+	}
+
+	/**
+	 * Get the WKT object, creating it if needed.
+	 */
+	private static function get_wkt() {
+		if ( ! isset( self::$geowkt ) ) {
+			self::$geowkt = new WKT();
+		}
+		return self::$geowkt;
+	}
+}

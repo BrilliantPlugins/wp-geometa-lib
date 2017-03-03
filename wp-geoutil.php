@@ -273,11 +273,14 @@ class WP_GeoUtil {
 		/* This filter has been deprecated and will be removed in a future version. */
 		WP_GeoUtil::$srid = apply_filters( 'wp_geoquery_srid', WP_GeoUtil::$srid );
 
+		$orig_funcs = array_map( 'strtolower',WP_GeoUtil::$all_funcs );
+
 		WP_GeoUtil::get_all_funcs();
 
 		WP_GeoUtil::$plugins_loaded_run = true;
 
 		$new_funcs = array_map( 'strtolower',WP_GeoUtil::$all_funcs );
+
 		$diff = array_diff( $new_funcs, $orig_funcs );
 		if ( count( $diff ) > 0 ) {
 			WP_GeoUtil::get_capabilities( true, false );
@@ -288,7 +291,6 @@ class WP_GeoUtil {
 	 * This function loads all known functions, including applying filters to load from other plugins.
 	 */
 	public static function get_all_funcs() {
-		$orig_funcs = array_map( 'strtolower',WP_GeoUtil::$all_funcs );
 		WP_GeoUtil::$all_funcs = apply_filters( 'wpgm_known_capabilities', WP_GeoUtil::$all_funcs );
 
 		/* This filter has been deprecated and will be removed in a future version. */

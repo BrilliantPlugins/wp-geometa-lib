@@ -14,6 +14,8 @@ Changes
  * Standardized internal callback functions to use the same name as the filter that they're callbacks for.
  * Tests are now included and work within WP-GeoMeta-Lib instead of in WP-GeoMeta.
  * Allow WP_GeoUtil::get_capabilities to be run without accessing the options table and without caching the results.
+ * Cleaner loader file, working towards using spl_autoload_register in a future release.
+ * Only loads geoPHP if it's needed.
 
 ### 0.3.1
  * Support for custom MySQL functions (User Defined Functions and stored functions).

@@ -114,9 +114,18 @@ class WP_GeoMeta {
 	/**
 	 * Install the tables and custom SQL queries
 	 */
-	public function install() {
-		$this->create_geo_tables();
-		$this->install_extra_sql_functions();
+	public static function install() {
+		$wpgm = WP_GeoMeta::get_instance();
+		$wpgm->create_geo_tables();
+		$wpgm->install_extra_sql_functions();
+	}
+
+	/**
+	 * Upgrade databases, if they exist.
+	 */
+	public function upgrade_if_exist() {
+		$wpgm->create_geo_tables();
+		$wpgm->install_extra_sql_functions();
 	}
 
 	/**

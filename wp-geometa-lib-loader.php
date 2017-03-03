@@ -53,8 +53,8 @@ if ( $wp_geometa_version_status >= 0 || '0.0.0' === $wp_geometa_max_version ) {
 		// Since we just got loaded, make sure that the database reflects any
 		// changes that the latest version of WP_GeoMeta might have added.
 		$db_version_compare = version_compare( $wp_geometa_version, $wp_geometa_db_version );
-		if ( $db_version_compare > 0 ) {
-			$wpgeo->install();
+		if ( $db_version_compare > 0 && '0.0.0' !== $wp_geometa_db_version ) {
+			$wpgeo->upgrade();
 
 			$wp_geoutil = WP_GeoUtil::get_instance();
 			$wp_geoutil->get_capabilities( true );
@@ -93,8 +93,8 @@ if ( ! function_exists( 'wp_geometa_load_older_version' ) ) {
 			// Since we just got loaded, make sure that the database reflects any
 			// changes that the latest version of WP_GeoMeta might have added.
 			$db_version_compare = version_compare( $wp_geometa_version, $wp_geometa_db_version );
-			if ( 0 > $db_version_compare ) {
-				$wpgeo->install();
+			if ( $db_version_compare > 0 && '0.0.0' !== $wp_geometa_db_version ) {
+				$wpgeo->upgrade();
 
 				$wp_geoutil = WP_GeoUtil::get_instance();
 				$wp_geoutil->get_capabilities( true );
@@ -172,23 +172,6 @@ if ( is_admin() ) {
 
 	// Add ourself to the list of installs.
 	WP_GeoMeta_Installs::add( __FILE__, $wp_geometa_version );
-}
-
-/**
- * Set up an activation hook for when this is a plugin.
- *
- * Plugins using this as a lib should run $wpgeo->install() themselves
- */
-if ( ! function_exists( 'wpgeometa_activation_hook' ) ) {
-	/**
-	 * Simple callback for the activation hook. Creates the spatial tables.
-	 */
-	function wpgeometa_activation_hook() {
-		require_once( dirname( __FILE__ ) . '/wp-geometa.php' );
-		$wpgeo = WP_GeoMeta::get_instance();
-		$wpgeo->install();
-	}
-	register_activation_hook( __FILE__ , 'wpgeometa_activation_hook' );
 }
 
 /**

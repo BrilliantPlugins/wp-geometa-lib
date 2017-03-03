@@ -50,7 +50,13 @@ Quick Start
    require_once('wp-geometa-lib/wp-geometa-lib-loader.php');
  ```
 
-3. Save GeoJSON metadata!
+3. Set up an activation hook to install WP_GeoMeta when your plugin activates.
+
+ ```
+   register_activation_hook( __FILE__ , array('WP_GeoMeta','install'));
+ ```
+
+4. Save GeoJSON metadata!
  
  ```
    update_post_meta( 15, 'my_meta_key', '[{GeoJSON}](http://geojson.org)' );

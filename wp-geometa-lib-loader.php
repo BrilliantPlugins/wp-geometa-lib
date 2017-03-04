@@ -4,6 +4,8 @@
  *
  * @package wp-geometa-lib
  *
+ * Version: 0.3.2
+ *
  * To include spatial metadata support in your plugin, simply include this file.
  *
  * WP-GeoMeta-lib handles having multiple versions of itself installed corretly, always loading the latest version.
@@ -13,7 +15,7 @@
 
 defined( 'ABSPATH' ) or die( 'No direct access' );
 
-$wp_geometa_version = '0.3.2'; // Also change down in wp_geometa_load_older_version().
+$wp_geometa_version = '0.3.2'; 
 
 if ( ! class_exists( 'WP_GeoMeta_Installs' ) ) {
 	/**

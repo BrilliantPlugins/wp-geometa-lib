@@ -67,7 +67,6 @@ if ( ! class_exists( 'WP_GeoMeta_Installs' ) ) {
 		 * @param string $class_name The class name that PHP is looking for.
 		 */
 		public static function load( $class_name ) {
-			$a = 1;
 			if ( in_array( $class_name, array( 'WP_GeoMeta', 'WP_GeoQuery', 'WP_GeoUtil' ), true ) ) {
 				WP_GeoMeta_Installs::load_now();
 			}

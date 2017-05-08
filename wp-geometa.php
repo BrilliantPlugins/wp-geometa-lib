@@ -113,10 +113,20 @@ class WP_GeoMeta {
 
 		WP_GeoMeta::add_latlng_field( 'geo_latitude', 'geo_longitude', 'geo_' );
 
+		add_action( 'plugins_loaded', array( $this, 'plugins_loaded') );
 		add_filter( 'wpgm_pre_metaval_to_geom', array( $this, 'wpgm_pre_metaval_to_geom' ), 10, 2 );
 		add_filter( 'wpgm_populate_geo_tables', array( $this, 'wpgm_populate_geo_tables' ) );
 		add_filter( 'wpgm_pre_delete_geometa', array( $this, 'wpgm_pre_delete_geometa' ), 10, 5 );
 		add_filter( 'wpgm_extra_sql_functions', array( $this, 'wpgm_extra_sql_functions' ) );
+	}
+
+	/**
+	 * Make sure that everything we need is defined, if no one else did already.
+	 */
+	public function plugins_loaded() {
+		if ( !defined( 'WP_GEOMETA_DEBUG' ) ) {
+			define( 'WP_GEOMETA_DEBUG', false );
+		}
 	}
 
 	/**

@@ -42,7 +42,7 @@ Quick Start
 1. Download WP-GeoMeta-Lib to your plugin. 
  
  ```
- 	git clone https://github.com/cimburadotcom/wp-geometa-lib.git 
+ 	git clone https://github.com/BrilliantPlugins/wp-geometa-lib
  ```
 2. Require `wp-geometa-lib-loader.php` in your plugin code.
  

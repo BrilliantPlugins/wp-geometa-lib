@@ -3,9 +3,9 @@
  * This class has geo utils that users and WP_Geo* classes might need.
  *
  * @package wp-geometa
- * @link https://github.com/cimburadotcom/WP-GeoMeta
- * @author Michael Moore / michael_m@cimbura.com / https://profiles.wordpress.org/stuporglue/
- * @copyright Cimbura.com, 2016
+ * @link https://github.com/BrilliantPlugins/wp-geometa
+ * @author Michael Moore / michael.moore@luminfire.com / https://profiles.wordpress.org/stuporglue/
+ * @copyright LuminFire, 2016
  * @license GNU GPL v2
  */
 

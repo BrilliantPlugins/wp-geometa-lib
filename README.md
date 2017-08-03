@@ -54,9 +54,10 @@ You'll need at leastWordPress 4.1 and MySQL 5.6.1. [More details here](docs/SERV
 
 ### How does it work? 
 
-WP-GeoMeta-lib uses WordPress hooks to detect when spatial metadata is being stored, or when it's being queried. It then routes the spatial data, or the spatial part of the query to a set of tables that support spatial data. [More details](docs/HOW_DOES_IT_WORK.md).
+WP-GeoMeta-lib uses WordPress hooks to detect when spatial metadata is being stored, or when it's being queried. It then routes the spatial data, or the spatial part of the query to a set of tables that support spatial data. 
+
+[Take a deeper dive](docs/HOW_DOES_IT_WORK.md).
 
 ### Hacking
 
-Interested on what's going on under the hood? Dive in to the code (it should be well documented) and 
-check out [HACKING.md](docs/HACKING.md).
+Interested in contributing? Dive in to the code (it should be well documented) and check out [HACKING.md](docs/HACKING.md).

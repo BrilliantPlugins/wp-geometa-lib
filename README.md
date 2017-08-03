@@ -1,5 +1,5 @@
-WP-GeoMeta-Lib
-==============
+![WP-GeoMeta-Lib](https://raw.githubusercontent.com/BrilliantPlugins/wp-geometa-lib/media/img/logo.png) WP-GeoMeta-Lib
+======================================================================================================================
 
 WP-GeoMeta-Lib is a spatial framework for WordPress.  It provides a solid foundation
 for spatial data using MySQL's native spatial support. With WP-GeoMeta-Lib you can store 

@@ -18,11 +18,8 @@ Please feel free to use this library in **your** plugin. Standardization makes
 life easier for everyone. If this plugin isn't meeting your needs, or you have other 
 great ideas, lets talk!
 
-The Big Plan
---------------
-
-WP-GeoMeta should be light and tight. It should focus on core spatial functionality
-and leave the rest to plugin developers.
+Overview
+--------
 
 ### The Basics
 

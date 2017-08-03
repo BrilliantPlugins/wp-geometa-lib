@@ -52,6 +52,10 @@ We believe that WP-GeoMeta-lib is the best and easiest way to work spatial data 
 
 You'll need at leastWordPress 4.1 and MySQL 5.6.1. [More details here](docs/SERVER_REQUIREMENTS.md).
 
+### How does it work? 
+
+WP-GeoMeta-lib uses WordPress hooks to detect when spatial metadata is being stored, or when it's being queried. It then routes the spatial data, or the spatial part of the query to a set of tables that support spatial data. [More details](docs/HOW_DOES_IT_WORK.md).
+
 ### Hacking
 
 Interested on what's going on under the hood? Dive in to the code (it should be well documented) and 

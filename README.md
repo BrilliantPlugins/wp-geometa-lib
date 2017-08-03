@@ -44,11 +44,13 @@ using spatial queries!
 Tell Me More
 ------------
 
-### [Why should I use WP-GeoMeta-Lib](docs/WHY_WPGEOMETA.md)?
+### Why should I use WP-GeoMeta-lib
+
+We believe that WP-GeoMeta-lib is the best and easiest way to work spatial data in WordPress. If an opinion alone isn't enough, [see some of our reasons](docs/WHY_WPGEOMETA.md) and decide on your own.
 
 ### What are the server requirements for WP-GeoMeta-Lib? 
 
-At leastWordPress 4.1 and MySQL 5.6.1. [More details in SERVER_REQUIREMENTS.md](docs/SERVER_REQUIREMENTS.md)
+You'll need at leastWordPress 4.1 and MySQL 5.6.1. [More details in SERVER_REQUIREMENTS.md](docs/SERVER_REQUIREMENTS.md)
 
 ### Hacking
 

@@ -1,16 +1,5 @@
-This document is for developers who wish to work on WP-GeoMeta itself.
-
-<!-- #toc -->
-
-- [The Big Plan](#the-big-plan)
-    - [The Basics](#the-basics)
-    - [A Bit Deeper](#a-bit-deeper)
-- [Related Projects](#related-projects)
-
-<!-- /toc -->
-
-Hackers
-=======
+Hacking on WP-GeoMeta-Lib
+==========================
 
 Send me your bug reports, suggestions and pull requests.
 

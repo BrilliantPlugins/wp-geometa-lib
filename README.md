@@ -50,7 +50,7 @@ We believe that WP-GeoMeta-lib is the best and easiest way to work spatial data 
 
 ### What are the server requirements for WP-GeoMeta-Lib? 
 
-You'll need at leastWordPress 4.1 and MySQL 5.6.1. [More details in SERVER_REQUIREMENTS.md](docs/SERVER_REQUIREMENTS.md)
+You'll need at leastWordPress 4.1 and MySQL 5.6.1. [More details here](docs/SERVER_REQUIREMENTS.md).
 
 ### Hacking
 

@@ -1,6 +1,6 @@
 WP-GeoMeta-Lib
 ==============
-<img align="left" src="https://raw.githubusercontent.com/BrilliantPlugins/wp-geometa-lib/media/img/logo.png">
+<img align="left" src="https://raw.githubusercontent.com/BrilliantPlugins/wp-geometa-lib/media/img/logo_128.png">
 WP-GeoMeta-Lib is a spatial framework for WordPress. It provides a solid foundation for spatial data using MySQL's native spatial support. With WP-GeoMeta-Lib you can store and search spatial metadata like you do any other metadata, but using MySQL spatial indexes.
 
 WP-GeoMeta-Lib was created with developers in mind. If you find it cumbersome, buggy or missing features, let us know! 

@@ -24,7 +24,7 @@ Quick Start
    require_once('wp-geometa-lib/wp-geometa-lib-loader.php');
  ```
 
-3. Set up an activation hook to install WP_GeoMeta when your plugin activates.
+3. Set up an activation hook to install WP-GeoMeta-lib when your plugin activates.
 
  ```
    register_activation_hook( __FILE__ , array('WP_GeoMeta','install'));
@@ -41,19 +41,16 @@ Quick Start
 Once you are storing spatial data you (or anyone else!) can query it
 using spatial queries!
 
-Why WP-GeoMeta-Lib?
--------------------
-[Why WP-GeoMeta-Lib](docs/WHY_WPGEOMETA.md)
+Tell Me More
+------------
 
-Server Requirements
--------------------
+### [Why should I use WP-GeoMeta-Lib](docs/WHY_WPGEOMETA.md)?
 
-TL;DR: WordPress 4.1, MySQL 5.6.1
+### What are the server requirements for WP-GeoMeta-Lib? 
 
-[More details in SERVER_REQUIREMENTS.md](docs/SERVER_REQUIREMENTS.md)
+At leastWordPress 4.1 and MySQL 5.6.1. [More details in SERVER_REQUIREMENTS.md](docs/SERVER_REQUIREMENTS.md)
 
-Hacking
--------
+### Hacking
 
 Interested on what's going on under the hood? Dive in to the code (it should be well documented) and 
 check out [HACKING.md](docs/HACKING.md).

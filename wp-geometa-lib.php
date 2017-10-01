@@ -31,7 +31,8 @@ $wpgu = WP_GeoUtil::get_instance();
 $wp_geometa_db_version = get_option( 'wp_geometa_db_version', '0.0.0' );
 if ( '0.0.0' !== $wp_geometa_db_version ) { // 0.0.0. means no version in the DB at all.
 	$db_version_compare = version_compare( WP_GEOMETA_VERSION, $wp_geometa_db_version );
-	if ( $db_version_compare > 0 ) {
+	$lib_version_compare = version_compare( $wp_geometa_version, $wp_geometa_max_version );
+	if ( $db_version_compare > 0 || $lib_version_compare > 0 ) {
 		$wpgeo->upgrade();
 	}
 }

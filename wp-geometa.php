@@ -191,7 +191,7 @@ if ( !class_exists( 'WP_GeoMeta', false ) ) {
 				meta_value geometrycollection NOT NULL,
 				PRIMARY KEY  (meta_id),
 		KEY post_id (post_id),
-		UNIQUE KEY fk_meta_id (fk_meta_id),
+		UNIQUE KEY fk_postmeta_id (fk_meta_id),
 		KEY meta_key (meta_key($max_index_length))
 	) ENGINE=MyISAM $charset_collate;
 
@@ -203,7 +203,7 @@ if ( !class_exists( 'WP_GeoMeta', false ) ) {
 				meta_value geometrycollection NOT NULL,
 				PRIMARY KEY  (meta_id),
 		KEY comment_id (comment_id),
-		UNIQUE KEY fk_meta_id (fk_meta_id),
+		UNIQUE KEY fk_commentmeta_id (fk_meta_id),
 		KEY meta_key (meta_key($max_index_length))
 	) ENGINE=MyISAM $charset_collate;
 
@@ -215,7 +215,7 @@ if ( !class_exists( 'WP_GeoMeta', false ) ) {
 				meta_value geometrycollection NOT NULL,
 				PRIMARY KEY  (meta_id),
 		KEY term_id (term_id),
-		UNIQUE KEY fk_meta_id (fk_meta_id),
+		UNIQUE KEY fk_termmeta_id (fk_meta_id),
 		KEY meta_key (meta_key($max_index_length))
 	) ENGINE=MyISAM $charset_collate;
 
@@ -227,7 +227,7 @@ if ( !class_exists( 'WP_GeoMeta', false ) ) {
 				meta_value geometrycollection NOT NULL,
 				PRIMARY KEY  (umeta_id),
 		KEY user_id (user_id),
-		UNIQUE KEY fk_meta_id (fk_meta_id),
+		UNIQUE KEY fk_usermeta_id (fk_meta_id),
 		KEY meta_key (meta_key($max_index_length))
 	) ENGINE=MyISAM $charset_collate;
 ";

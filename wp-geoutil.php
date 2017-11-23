@@ -352,7 +352,8 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 				if ( is_object( $fragment ) ) {
 					$fragment = (array) $fragment;
 				} else if ( is_string( $fragment ) ) {
-					$fragment = json_decode( $fragment,true );
+					$utf8_fragment = @iconv( $encoding, "UTF-8//IGNORE", $fragment );
+					$fragment = json_decode( $utf8_fragment, true );
 				}
 
 				if ( ! is_array( $fragment ) ) {

@@ -4,6 +4,7 @@ Changes
 ### 0.3.5
  * What happened to changelog notes for 0.3.3 and 0.3.4? No idea.
  * Coerce imported GeoJSON to UTF-8 to avoid parse errors.
+ * Redefine variables in load_now so that wp-geometa-lib will have them.
 
 ### 0.3.2
  * WP_GeoUtil::is_geom now has a shortcircuit for strings that don't even look like WKT

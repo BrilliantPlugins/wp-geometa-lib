@@ -83,7 +83,11 @@ if ( ! class_exists( 'WP_GeoMeta_Installs' ) ) {
 
 			// Go to the end of the array and require the file.
 			// Then get the directory.
-			$this_dir = dirname( end( WP_GeoMeta_Installs::$versions ) );
+			end( WP_GeoMeta_Installs::$versions );
+
+
+			$this_dir = dirname( current( WP_GeoMeta_Installs::$versions ) );
+			$wp_geometa_max_version = get_option( 'wp_geometa_version', '0.0.0' );
 
 			// Require the wp-geometa-lib file which will handle DB upgrades, initializing stuff and setting up needed hooks.
 			require_once( $this_dir . '/wp-geometa-lib.php' );

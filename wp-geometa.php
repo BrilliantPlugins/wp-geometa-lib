@@ -454,8 +454,8 @@ if ( !class_exists( 'WP_GeoMeta', false ) ) {
 			%d,
 			%d,
 			%s,
-			GeomFromText(%s,%d)
-		) ON DUPLICATE KEY UPDATE meta_value=GeomFromText(%s,%d)",
+			ST_GeomFromText(%s,%d, 'axis-order=long-lat')
+		) ON DUPLICATE KEY UPDATE meta_value=ST_GeomFromText(%s,%d, 'axis-order=long-lat')",
 					array(
 						$object_id,
 						$meta_id,

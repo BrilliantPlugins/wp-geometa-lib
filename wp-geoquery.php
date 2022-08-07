@@ -164,8 +164,8 @@ if ( !class_exists( 'WP_GeoQuery', false ) ) {
 			 *
 			 * Needs to become
 			 *
-			 * INNER JOIN ( SELECT meta_key, Dimension(meta_value) AS meta_value FROM wp_postmeta_geo ) wp_postmeta ON ( wp_posts.ID = wp_postmeta.post_id)
-			 * INNER JOIN ( SELECT meta_key, ST_DISTANCE(meta_value, GeomFromText('POINT(0,0)')) AS meta_value FROM wp_postmeta_geo ) mt1 ON ( wp_posts.ID = mt1.post_id )
+			 * INNER JOIN ( SELECT meta_key, ST_Dimension(meta_value) AS meta_value FROM wp_postmeta_geo ) wp_postmeta ON ( wp_posts.ID = wp_postmeta.post_id)
+			 * INNER JOIN ( SELECT meta_key, ST_DISTANCE(meta_value, ST_GeomFromText('POINT(0,0)')) AS meta_value FROM wp_postmeta_geo ) mt1 ON ( wp_posts.ID = mt1.post_id )
 			 *
 			 */
 
@@ -220,7 +220,7 @@ if ( !class_exists( 'WP_GeoQuery', false ) ) {
 			$meta_value = ( array_key_exists( 'value', $meta_query ) ? $meta_query['value'] : '' );
 			$geometry = WP_GeoUtil::metaval_to_geom( $meta_value, true );
 			if ( ! empty( $geometry ) ) {
-				$new_meta_value = "{$meta_query['compare']}( meta_value,GeomFromText( %s, %d ) )";
+				$new_meta_value = "{$meta_query['compare']}( meta_value,ST_GeomFromText( %s, %d, 'axis-order=long-lat' ) )";
 				$new_meta_value = $wpdb->prepare( $new_meta_value, array( $geometry, WP_GeoUtil::get_srid() ) ); // @codingStandardsIgnoreLine
 
 				$std_query = "( $metatable.meta_key = %s AND CAST($metatable.meta_value AS $meta_type) = %s )";

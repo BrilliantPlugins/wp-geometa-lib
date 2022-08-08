@@ -454,8 +454,8 @@ if ( !class_exists( 'WP_GeoMeta', false ) ) {
 			%d,
 			%d,
 			%s,
-			GeomFromText(%s,%d)
-		) ON DUPLICATE KEY UPDATE meta_value=GeomFromText(%s,%d)",
+			ST_GeomFromText(%s,%d, 'axis-order=long-lat')
+		) ON DUPLICATE KEY UPDATE meta_value=ST_GeomFromText(%s,%d, 'axis-order=long-lat')",
 					array(
 						$object_id,
 						$meta_id,
@@ -762,10 +762,12 @@ if ( !class_exists( 'WP_GeoMeta', false ) ) {
 			$the_other_field = ( $thepair['lat'] === $meta_key ? $thepair['lng'] : $thepair['lat'] );
 
 			$meta = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table WHERE {$type}_id = %d AND meta_key = %s", array( $object_id, $the_other_field ) ), ARRAY_A ); // @codingStandardsIgnoreLine
-
+			
 			$id_column = ( 'user' === $type ) ? 'umeta_id' : 'meta_id';
-
-			$meta_ids[] = $meta[ $id_column ];
+			
+			if(is_array($meta) && array_key_exists($id_column, $meta)) {
+				$meta_ids[] = $meta[ $id_column ];
+			}
 
 			return $meta_ids;
 		}

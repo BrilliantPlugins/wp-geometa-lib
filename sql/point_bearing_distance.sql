@@ -42,7 +42,7 @@ BEGIN
 
 	DECLARE secondpoint TEXT;
 	SET secondpoint = CONCAT('POINT(', wp_point_bearing_distance_coord_pair(p,bearing,distance,eradius), ')');
-	RETURN LineString(p, GeomFromText(secondpoint) );
+	RETURN LineString(p, ST_GeomFromText(secondpoint) );
 END$$
 
 

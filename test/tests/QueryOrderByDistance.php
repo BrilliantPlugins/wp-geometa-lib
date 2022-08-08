@@ -35,7 +35,7 @@ if ( ! $wpq->have_posts() ) {
 	while ( $wpq->have_posts() ) {
 		$wpq->the_post();
 		$post_id = get_the_ID();
-		$res = $wpdb->get_var( $wpdb->prepare( 'SELECT ST_Distance( meta_value, GeomFromText( \'POLYGON ((-1.26 1.08, -1.26 1.09, -1.21 1.09, -1.21 1.08, -1.26 1.08))\', 4326)) FROM ' . $wpdb->postmeta . '_geo WHERE post_id=%s', array( $post_id ) ) );
+		$res = $wpdb->get_var( $wpdb->prepare( 'SELECT ST_Distance( meta_value, ST_GeomFromText( \'POLYGON ((-1.26 1.08, -1.26 1.09, -1.21 1.09, -1.21 1.08, -1.26 1.08))\', 4326, \'axis-order=long-lat\')) FROM ' . $wpdb->postmeta . '_geo WHERE post_id=%s', array( $post_id ) ) );
 
 		if ( $res < $maxVal ) {
 			fail( $wpq );
@@ -70,7 +70,7 @@ if ( ! $wpq->have_posts() ) {
 	while ( $wpq->have_posts() ) {
 		$wpq->the_post();
 		$post_id = get_the_ID();
-		$res = $wpdb->get_var( $wpdb->prepare( 'SELECT ST_Distance( meta_value, GeomFromText( \'POLYGON ((-1.26 1.08, -1.26 1.09, -1.21 1.09, -1.21 1.08, -1.26 1.08))\', 4326)) FROM ' . $wpdb->postmeta . '_geo WHERE post_id=%s', array( $post_id ) ) );
+		$res = $wpdb->get_var( $wpdb->prepare( 'SELECT ST_Distance( meta_value, ST_GeomFromText( \'POLYGON ((-1.26 1.08, -1.26 1.09, -1.21 1.09, -1.21 1.08, -1.26 1.08))\', 4326, \'axis-order=long-lat\')) FROM ' . $wpdb->postmeta . '_geo WHERE post_id=%s', array( $post_id ) ) );
 
 		if ( $res > $minVal) {
 			fail( $wpq );

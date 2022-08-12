@@ -15,19 +15,19 @@ $wpq = new WP_Query( array(
 		'relation' => 'OR',
 		array(
 			'key'     => 'wpgeometa_test',
-			'compare' => 'INTERSECTS', // Test Post 6
+			'compare' => 'ST_INTERSECTS', // Test Post 6
 			'value'   => '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-93.240187168558,45.086756059204],[-93.240187168558,45.094512267863],[-93.227398395975,45.094512267863],[-93.227398395975,45.086756059204],[-93.240187168558,45.086756059204]]]}}'
 		),
 		array(
 			'relation' => 'AND',
 			array(
 				'key' => 'wpgeometa_test',
-				'compare' => 'INTERSECTS', // Test Post 2
+				'compare' => 'ST_INTERSECTS', // Test Post 2
 				'value' => '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-93.255769014577,45.083593183085],[-93.255769014577,45.086199046195],[-93.249717951039,45.086199046195],[-93.249717951039,45.083593183085],[-93.255769014577,45.083593183085]]]}}',
 			),
 			array(
 				'key' => 'wpgeometa_test',
-				'compare' => 'INTERSECTS', // Test Post 5
+				'compare' => 'ST_INTERSECTS', // Test Post 5
 				'value' => '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-93.251945972879,45.08257454104],[-93.251945972879,45.086877258065],[-93.244907856424,45.086877258065],[-93.244907856424,45.08257454104],[-93.251945972879,45.08257454104]]]}}'
 			),
 		),

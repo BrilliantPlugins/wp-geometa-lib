@@ -203,7 +203,7 @@ orderby with named meta clauses should work.
     	'meta_query' => array(
     		'dimensions' => array( 
     			'key' => 'wpgeometa_test',
-    			'geom_op' => 'Dimension'
+    			'geom_op' => 'ST_Dimension'
     		)
 		)));
 

@@ -15,7 +15,7 @@ $wpq = new WP_Query(array(
 		'key' => 'wpgeometa_test',
 		'compare' => '=',
 		'value' => '2',
-		'geom_op' => 'Dimension'
+		'geom_op' => 'ST_Dimension'
 	)
 	))); 
 
@@ -33,7 +33,7 @@ $wpq = new WP_Query(array(
 		'key' => 'wpgeometa_test',
 		'compare' => '>',
 		'value' => '100',
-		'geom_op' => 'Dimension',
+		'geom_op' => 'ST_Dimension',
 		'type' => 'NUMERIC'
 	)
 	))); 

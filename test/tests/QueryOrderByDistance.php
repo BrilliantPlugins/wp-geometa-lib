@@ -21,7 +21,7 @@ $wpq = new WP_Query(array(
 			'key' => 'wpgeometa_test',
 			'compare' => 'ST_Distance',
 			'value' => '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-1.26,1.08],[-1.26,1.09],[-1.21,1.09],[-1.21,1.08],[-1.26,1.08]]]}}',
-			'type' => 'DECIMAL(10,7)'
+			'type' => 'FLOAT'
 		)
 	))); 
 
@@ -56,7 +56,7 @@ $wpq = new WP_Query(array(
 			'key' => 'wpgeometa_test',
 			'compare' => 'ST_Distance',
 			'value' => '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-1.26,1.08],[-1.26,1.09],[-1.21,1.09],[-1.21,1.08],[-1.26,1.08]]]}}',
-			'type' => 'DECIMAL(10,7)'
+			'type' => 'FLOAT'
 		)
 	))); 
 

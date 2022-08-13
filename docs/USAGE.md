@@ -208,7 +208,7 @@ orderby with named meta clauses should work.
 		)));
 
 2) Two argument function that returns a value, eg. ST_Distance. Note that I use 
-```'type' => 'DECIMAL(10)'``` so that sorting is done numerically, instead of alphabetically.
+```'type' => 'DECIMAL(10,7)'``` so that sorting is done numerically, instead of alphabetically.
 
     $wpq = new WP_Query(array(
     	'post_type' => 'geo_test',
@@ -219,7 +219,7 @@ orderby with named meta clauses should work.
     			'key' => 'wpgeometa_test',
     			'compare' => 'ST_Distance',
     			'value' => '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-1.26,1.08],[-1.26,1.09],[-1.21,1.09],[-1.21,1.08],[-1.26,1.08]]]}}',
-    			'type' => 'DECIMAL(10)'
+    			'type' => 'DECIMAL(10,7)'
     		)
     	))); 
 

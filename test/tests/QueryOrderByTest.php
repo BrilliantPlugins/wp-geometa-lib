@@ -86,7 +86,7 @@ $wpq = new WP_Query(array(
 	'meta_query' => array(
 		'dimensions' => array( 
 			'key' => 'wpgeometa_test',
-			'geom_op' => 'Dimension',
+			'geom_op' => 'ST_Dimension',
 			// 'type' => 'NUMERIC'
 		),
 		'titlemeta' => array( 
@@ -127,7 +127,7 @@ $wpq = new WP_Query(array(
 	'meta_query' => array(
 		'dimensions' => array( 
 			'key' => 'wpgeometa_test',
-			'geom_op' => 'Dimension',
+			'geom_op' => 'ST_Dimension',
 			// 'type' => 'NUMERIC'
 		),
 		'titlemeta' => array( 
@@ -147,7 +147,7 @@ if ( ! $wpq->have_posts() ) {
 	while ( $wpq->have_posts() ) {
 		$wpq->the_post();
 		$post_id = get_the_ID();
-		$res = $wpdb->get_var( $wpdb->prepare( 'ST_Dimension (meta_value) FROM ' . $wpdb->postmeta . '_geo WHERE meta_key=\'wpgeometa_test\' AND post_id=%s', array( $post_id ) ) );
+		$res = $wpdb->get_var( $wpdb->prepare( 'SELECT ST_Dimension (meta_value) FROM ' . $wpdb->postmeta . '_geo WHERE meta_key=\'wpgeometa_test\' AND post_id=%s', array( $post_id ) ) );
 
 		if ( $res < $maxVal) {
 			fail( $wpq );

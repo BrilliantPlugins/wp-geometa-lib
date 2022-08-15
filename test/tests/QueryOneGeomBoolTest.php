@@ -13,7 +13,7 @@ $wpq = new WP_Query(array(
 	'meta_query' => array(
 		array( 
 		'key' => 'wpgeometa_test',
-		'compare' => 'Dimension'
+		'compare' => 'ST_Dimension'
 	)
 	))); 
 

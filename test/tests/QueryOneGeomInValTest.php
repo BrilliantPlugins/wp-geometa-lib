@@ -15,7 +15,7 @@ $wpq = new WP_Query(array(
 		'key' => 'wpgeometa_test',
 		'compare' => 'BETWEEN',
 		'value' => array(1,10),
-		'geom_op' => 'Dimension',
+		'geom_op' => 'ST_Dimension',
 		'type' => 'NUMERIC',  // 'NUMERIC', 'BINARY', 'CHAR', 'DATE', 'DATETIME', 'DECIMAL', 'SIGNED', 'TIME', 'UNSIGNED'. Default value is 'CHAR'. 
 	)
 	))); 
@@ -34,7 +34,7 @@ $wpq = new WP_Query(array(
 		'key' => 'wpgeometa_test',
 		'compare' => 'NOT IN',
 		'value' => array(1,2,3),
-		'geom_op' => 'NumPoints'
+		'geom_op' => 'ST_NumPoints'
 	)
 	))); 
 

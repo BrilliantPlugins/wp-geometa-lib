@@ -1,6 +1,11 @@
 Changes
 -------
 
+### 0.4.0: Just Resting
+ * Tests passing up to PHP 8 / WP 6 / MySQL 8.
+ * Submodule tested with [WP-GeoMeta](https://github.com/BrilliantPlugins/wp-geometa), which now works as expected (addressing several [open issues](https://github.com/BrilliantPlugins/wp-geometa/issues)).
+ * Numerous fixes, mostly migrating now-removed MySQL spacial functions with their ST_ equivalents [more info](https://dev.mysql.com/doc/refman/5.7/en/spatial-relation-functions-object-shapes.html).
+
 ### 0.3.5
  * What happened to changelog notes for 0.3.3 and 0.3.4? No idea.
  * Coerce imported GeoJSON to UTF-8 to avoid parse errors.

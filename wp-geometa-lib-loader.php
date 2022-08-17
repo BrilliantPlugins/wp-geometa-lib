@@ -4,7 +4,7 @@
  *
  * @package wp-geometa-lib
  *
- * Version: 0.3.5
+ * Version: 0.4.0
  *
  * To include spatial metadata support in your plugin, simply include this file.
  *
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) or die( 'No direct access' );
 
-$wp_geometa_version = '0.3.5'; 
+$wp_geometa_version = '0.4.0'; 
 
 if ( ! class_exists( 'WP_GeoMeta_Installs' ) ) {
 	/**

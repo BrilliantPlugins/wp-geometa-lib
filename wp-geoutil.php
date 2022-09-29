@@ -180,6 +180,7 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 			'ST_LineStringFromText',
 			'ST_LineStringFromWKB',
 			'ST_LongFromGeoHash',
+			'ST_MakeEnvelope',
 			'ST_NumGeometries',
 			'ST_NumInteriorRings',
 			'ST_NumPoints',
@@ -209,6 +210,8 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 			'Within',
 			'X',
 			'Y',
+			'WP_Bearing',
+			'WP_Bevier_CtrlPts',
 			'WP_Buffer_Point_M',
 			'WP_Buffer_Point_Mi',
 			'WP_Buffer_Point_Real',
@@ -485,8 +488,8 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 				if ( $force_multi && false === strpos( $wkt, 'MULTI' ) ) {
 					if ( 0 === strpos( $wkt, 'POINT' ) ) {
 						$wkt = preg_replace( '@^POINT@','MULTIPOINT', $wkt );
-					} else if ( 0 === strpos( $wkt, 'LINE' ) || 0 === strpos( $wkt, 'POLYGON' ) ) {
-						$wkt = preg_replace( '@^(LINE|POLYGON)(\s*)(\(.*?\)[^,])@','MULTI$1$2($3)', $wkt );
+					} else if ( 0 === strpos( $wkt, 'LINESTRING' ) || 0 === strpos( $wkt, 'POLYGON' ) ) {
+						$wkt = preg_replace( '@^(LINESTRING|POLYGON)(\s*)(\(.*?\)[^,])@','MULTI$1$2($3)', $wkt );
 					}
 				}
 

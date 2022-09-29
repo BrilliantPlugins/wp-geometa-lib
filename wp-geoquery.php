@@ -223,15 +223,16 @@ if ( !class_exists( 'WP_GeoQuery', false ) ) {
 				$new_meta_value = "{$meta_query['compare']}( meta_value,ST_GeomFromText( %s, %d, 'axis-order=long-lat' ) )";
 				$new_meta_value = $wpdb->prepare( $new_meta_value, array( $geometry, WP_GeoUtil::get_srid() ) ); // @codingStandardsIgnoreLine
 
-				$std_query = "( $metatable.meta_key = %s AND CAST($metatable.meta_value AS $meta_type) = %s )";
-				$std_queries[] = $wpdb->prepare( $std_query, array( $meta_query['key'], $meta_query['value'] ) ); // @codingStandardsIgnoreLine
+				$std_query = " CAST($metatable.meta_value AS $meta_type) = %s ";
+				$std_queries[] = $wpdb->prepare( $std_query, array( $meta_query['value'] ) ); // @codingStandardsIgnoreLine
 
 				// In WP 4.6 and above CHAR values aren't cast anymore, so we do a replace on both versions
 				// so that we maintain 4.5.x capabilities too.
 				if ( 'CHAR' === $meta_type ) {
-					$std_query = "( $metatable.meta_key = %s AND $metatable.meta_value = %s )";
-					$std_queries[] = $wpdb->prepare( $std_query, array( $meta_query['key'], $meta_query['value'] ) ); // @codingStandardsIgnoreLine
+					$std_query = " $metatable.meta_value = %s ";
+					$std_queries[] = $wpdb->prepare( $std_query, array( $meta_query['value'] ) ); // @codingStandardsIgnoreLine
 				}
+				$geom_query = $wpdb->prepare( " $metatable.meta_value " ); // @codingStandardsIgnoreLine
 			} else {
 				// If we don't have a value, then our subquery gets written without parenthesis wraps.
 				// IDK why.
@@ -239,11 +240,11 @@ if ( !class_exists( 'WP_GeoQuery', false ) ) {
 
 				$std_query = "  $metatable.meta_key = %s";
 				$std_queries[] = $wpdb->prepare( $std_query, array( $meta_query['key'] ) ); // @codingStandardsIgnoreLine
-			}
 
-			// Our geom_query will be against our aliased meta table so we just need to check for boolean true.
-			$geom_query = "( $metatable.meta_key = %s AND $metatable.meta_value )";
-			$geom_query = $wpdb->prepare( $geom_query, array( $meta_query['key'] ) ); // @codingStandardsIgnoreLine
+				// Our geom_query will be against our aliased meta table so we just need to check for boolean true.
+				$geom_query = "( $metatable.meta_key = %s AND $metatable.meta_value )";
+				$geom_query = $wpdb->prepare( $geom_query, array( $meta_query['key'] ) ); // @codingStandardsIgnoreLine
+			}
 
 			$this->make_join_spatial( $clauses,$meta_query,$type,$primary_table,$primary_id_column,$context, $metatable, $geotable, $id_column, $new_meta_value );
 

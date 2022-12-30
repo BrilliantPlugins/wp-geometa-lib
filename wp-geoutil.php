@@ -739,7 +739,7 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 				$maybe_geom = self::metaval_to_geom( $arg );
 				if ( false !== $maybe_geom ) {
 					$arguments[ $idx ] = $maybe_geom;
-					$q .= 'GeomCollFromText(%s)';
+					$q .= 'ST_GeomCollFromText(%s)';
 				} else {
 					$q .= '%s';
 				}

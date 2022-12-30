@@ -779,7 +779,7 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 					\'0001000004\', -- multipoint
 					\'0001000005\', -- multiline
 					\'0001000006\' -- multipolygon
-				), false) , AsText( retval ), retval ) AS res FROM ( ' . $q . ' AS retval ) rq';
+				), false) , ST_AsText( retval ), retval ) AS res FROM ( ' . $q . ' AS retval ) rq';
 
 			$sql = $wpdb->prepare( $real_q, $arguments ); // @codingStandardsIgnoreLine
 

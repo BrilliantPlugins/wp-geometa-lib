@@ -220,7 +220,7 @@ if ( !class_exists( 'WP_GeoQuery', false ) ) {
 			$meta_value = ( array_key_exists( 'value', $meta_query ) ? $meta_query['value'] : '' );
 			$geometry = WP_GeoUtil::metaval_to_geom( $meta_value, true );
 			if ( ! empty( $geometry ) ) {
-				$new_meta_value = "{$meta_query['compare']}( meta_value,ST_GeomFromText( %s, %d, 'axis-order=long-lat' ) )";
+				$new_meta_value = "{$meta_query['compare']}( meta_value,ST_GeomFromText( %s, %d ) )";
 				$new_meta_value = $wpdb->prepare( $new_meta_value, array( $geometry, WP_GeoUtil::get_srid() ) ); // @codingStandardsIgnoreLine
 
 				$std_query = " CAST($metatable.meta_value AS $meta_type) = %s ";

@@ -488,8 +488,8 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 				if ( $force_multi && false === strpos( $wkt, 'MULTI' ) ) {
 					if ( 0 === strpos( $wkt, 'POINT' ) ) {
 						$wkt = preg_replace( '@^POINT@','MULTIPOINT', $wkt );
-					} else if ( 0 === strpos( $wkt, 'LINESTRING' ) || 0 === strpos( $wkt, 'POLYGON' ) ) {
-						$wkt = preg_replace( '@^(LINESTRING|POLYGON)(\s*)(\(.*?\)[^,])@','MULTI$1$2($3)', $wkt );
+					} else if ( 0 === strpos( $wkt, 'LINE' ) || 0 === strpos( $wkt, 'POLYGON' ) ) {
+						$wkt = preg_replace( '@^(LINE|POLYGON)(\s*)(\(.*?\)[^,])@','MULTI$1$2($3)', $wkt );
 					}
 				}
 
@@ -705,7 +705,7 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 		 * @param array  $arguments The arguments for the function.
 		 */
 		public static function __callStatic( $name, $arguments ) {
-			if ( in_array( strtolower( $name ), self::get_capabilities(), true ) ) {
+			if ( in_array( strtolower( $name ),array_merge( self::get_capabilities(),array("linestring","point")), true ) ) {
 				return self::run_spatial_query( $name, $arguments );
 			}
 		}
@@ -739,7 +739,7 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 				$maybe_geom = self::metaval_to_geom( $arg );
 				if ( false !== $maybe_geom ) {
 					$arguments[ $idx ] = $maybe_geom;
-					$q .= 'ST_GeomFromText(%s)';
+					$q .= 'ST_GeomCollFromText(%s)';
 				} else {
 					$q .= '%s';
 				}

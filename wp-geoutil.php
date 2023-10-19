@@ -180,6 +180,7 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 			'ST_LineStringFromText',
 			'ST_LineStringFromWKB',
 			'ST_LongFromGeoHash',
+			'ST_MakeEnvelope',
 			'ST_NumGeometries',
 			'ST_NumInteriorRings',
 			'ST_NumPoints',
@@ -209,6 +210,8 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 			'Within',
 			'X',
 			'Y',
+			'WP_Bearing',
+			'WP_Bevier_CtrlPts',
 			'WP_Buffer_Point_M',
 			'WP_Buffer_Point_Mi',
 			'WP_Buffer_Point_Real',
@@ -702,7 +705,7 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 		 * @param array  $arguments The arguments for the function.
 		 */
 		public static function __callStatic( $name, $arguments ) {
-			if ( in_array( strtolower( $name ), self::get_capabilities(), true ) ) {
+			if ( in_array( strtolower( $name ),array_merge( self::get_capabilities(),array("linestring","point")), true ) ) {
 				return self::run_spatial_query( $name, $arguments );
 			}
 		}
@@ -736,7 +739,7 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 				$maybe_geom = self::metaval_to_geom( $arg );
 				if ( false !== $maybe_geom ) {
 					$arguments[ $idx ] = $maybe_geom;
-					$q .= 'GeomCollFromText(%s)';
+					$q .= 'ST_GeomCollFromText(%s)';
 				} else {
 					$q .= '%s';
 				}
@@ -776,7 +779,7 @@ if ( !class_exists( 'WP_GeoUtil', false ) ) {
 					\'0001000004\', -- multipoint
 					\'0001000005\', -- multiline
 					\'0001000006\' -- multipolygon
-				), false) , AsText( retval ), retval ) AS res FROM ( ' . $q . ' AS retval ) rq';
+				), false) , ST_AsText( retval ), retval ) AS res FROM ( ' . $q . ' AS retval ) rq';
 
 			$sql = $wpdb->prepare( $real_q, $arguments ); // @codingStandardsIgnoreLine
 

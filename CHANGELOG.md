@@ -1,6 +1,16 @@
 Changes
 -------
 
+### 0.4.0: Just Resting
+ * Tests passing up to PHP 8 / WP 6 / MySQL 8.
+ * Submodule tested with [WP-GeoMeta](https://github.com/BrilliantPlugins/wp-geometa), which now works as expected (addressing several [open issues](https://github.com/BrilliantPlugins/wp-geometa/issues)).
+ * Numerous fixes, mostly migrating now-removed MySQL spacial functions with their ST_ equivalents [more info](https://dev.mysql.com/doc/refman/5.7/en/spatial-relation-functions-object-shapes.html).
+
+### 0.3.5
+ * What happened to changelog notes for 0.3.3 and 0.3.4? No idea.
+ * Coerce imported GeoJSON to UTF-8 to avoid parse errors.
+ * Redefine variables in load_now so that wp-geometa-lib will have them.
+
 ### 0.3.2
  * WP_GeoUtil::is_geom now has a shortcircuit for strings that don't even look like WKT
  * Updated documentation!
@@ -12,6 +22,10 @@ Changes
  * Added filter to allow plugin devs to include their own custom SQL function files.
  * Standardized filter name prefixes to wpgm\_ (old filters will stick around for a few versions, even though I don't think anyone is using them).
  * Standardized internal callback functions to use the same name as the filter that they're callbacks for.
+ * Tests are now included and work within WP-GeoMeta-Lib instead of in WP-GeoMeta.
+ * Allow WP_GeoUtil::get_capabilities to be run without accessing the options table and without caching the results.
+ * Cleaner loader file, working towards using spl_autoload_register in a future release.
+ * Only loads geoPHP if it's needed.
 
 ### 0.3.1
  * Support for custom MySQL functions (User Defined Functions and stored functions).

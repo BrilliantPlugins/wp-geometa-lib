@@ -1,205 +1,136 @@
 <?php
-
 /**
- * This is the loader file for WP-GeoMeta-lib. 
+ * This is the loader file for WP-GeoMeta-lib.
+ *
+ * @package wp-geometa-lib
+ *
+ * Version: 0.4.0
  *
  * To include spatial metadata support in your plugin, simply include this file.
  *
  * WP-GeoMeta-lib handles having multiple versions of itself installed corretly, always loading the latest version.
  *
- * It also handles setting up the spatial meta tables, so this file should be included directly, and not inside a hook or action
- *
+ * It also handles setting up the spatial meta tables, so this file should be included directly, and not inside a hook or action.
  */
-
 
 defined( 'ABSPATH' ) or die( 'No direct access' );
 
-$wp_geometa_version = '0.3.2'; // Also change down in wp_geometa_load_older_version()
+$wp_geometa_version = '0.4.0'; 
+
+if ( ! class_exists( 'WP_GeoMeta_Installs' ) ) {
+	/**
+	 * This class is deliberately simple, because if it ever changes
+	 * the changes need to be backwards compatible.
+	 *
+	 * We're using a singleton instead of a global array to capture
+	 * each WP-GeoMeta's version and location.
+	 */
+	class WP_GeoMeta_Installs {
+		/**
+		 * List of installs
+		 *
+		 * @var $installs
+		 */
+		public static $installs = array();
+
+		/**
+		 * List of versions
+		 *
+		 * @var $versions
+		 */
+		public static $versions = array();
+
+		/**
+		 * Add an install listing
+		 *
+		 * @param string $file __FILE__ of wp-geometa.php.
+		 * @param string $version the version of wp-geometa.php.
+		 */
+		public static function add( $file, $version ) {
+			WP_GeoMeta_Installs::$installs[ $file ] = $version;
+			WP_GeoMeta_Installs::$versions[ $version ] = $file;
+		}
+
+		/**
+		 * Get the list of installs with versions.
+		 */
+		public static function get_list() {
+			return WP_GeoMeta_Installs::$installs;
+		}
+
+		/**
+		 * A loader function for apl_autoload_register.
+		 *
+		 * This gets called by PHP if LeafletPHP is not a class.
+		 *
+		 * This is preferable to always loading the class, since
+		 * this will avoid loading it if it's not needed.
+		 *
+		 * @param string $class_name The class name that PHP is looking for.
+		 */
+		public static function load( $class_name ) {
+			if ( in_array( $class_name, array( 'WP_GeoMeta', 'WP_GeoQuery', 'WP_GeoUtil' ), true ) ) {
+				WP_GeoMeta_Installs::load_now();
+			}
+		}
+
+		/**
+		 * This method will go away eventually.
+		 */
+		public static function load_now() {
+			// Sort keys by version_compare.
+			uksort( WP_GeoMeta_Installs::$versions, 'version_compare' );
+
+			// Go to the end of the array and require the file.
+			// Then get the directory.
+			end( WP_GeoMeta_Installs::$versions );
+
+
+			$this_dir = dirname( current( WP_GeoMeta_Installs::$versions ) );
+			$wp_geometa_max_version = get_option( 'wp_geometa_version', '0.0.0' );
+
+			// Require the wp-geometa-lib file which will handle DB upgrades, initializing stuff and setting up needed hooks.
+			require_once( $this_dir . '/wp-geometa-lib.php' );
+		}
+	}
+
+	// Let PHP auto loading only include the file if needed.
+	spl_autoload_register( array( 'WP_GeoMeta_Installs', 'load' ) );
+
+	add_action( 'plugins_loaded', array( 'WP_GeoMeta_Installs', 'load_now' ) );
+}
+
+// Add ourself to the list of installs.
+WP_GeoMeta_Installs::add( __FILE__, $wp_geometa_version );
 
 /**
- * Gather some self metadata so that if WP-GeoMeta is included as a lib in multiple plugins
- * and/or as a plugin itself, we can determine which one to load.
+ * Legacy handling
+ *
+ * If we detect an older version of WP_GeoMeta, do the old stuff to make sure we get loaded.
  */
 $wp_geometa_max_version = get_option( 'wp_geometa_version', '0.0.0' );
-$wp_geometa_db_version = get_option( 'wp_geometa_db_version', '0.0.0' );
 
 /**
  * -1 means that our version is lower.
  * 0 means they are equal.
  * 1 means our version is higher.
  */
-$wp_geometa_version_status = version_compare( $wp_geometa_version, $wp_geometa_max_version );
+if ( '0.0.0' !== $wp_geometa_max_version && 1 === version_compare( $wp_geometa_version, $wp_geometa_max_version ) ) {
+	require_once( dirname( __FILE__ ) . '/wp-geometa-lib.php' );
 
-
-// If our version is higher than the version in wp_options, then bump the DB version 
-// so that our verison will be the one to load next time.
-if ( 1 === $wp_geometa_version_status ) {
-	update_option( 'wp_geometa_version', $wp_geometa_version );
-} 
-
-// If our version is equal or higher to the db version, try to load our instance
-if ( 0 >= $wp_geometa_version_status || '0.0.0' === $wp_geometa_max_version ) {
-
-	// Other instances of WP_GeoMeta shouldn't have loaded these classes
-	// unless they're the same version as this instance.
-	if ( ! class_exists( 'WP_GeoMeta' ) ) {
-		require_once( dirname( __FILE__ ) . '/wp-geoquery.php' );
-		require_once( dirname( __FILE__ ) . '/wp-geometa.php' );
-		$wpgeo = WP_GeoMeta::get_instance();
-		$wpgq = WP_GeoQuery::get_instance();
-
-		define( 'WP_GEOMETA_VERSION', $wp_geometa_version );
-
-		// Since we just got loaded, make sure that the database reflects any
-		// changes that the latest version of WP_GeoMeta might have added.
-		$db_version_compare = version_compare( $wp_geometa_version, $wp_geometa_db_version );
-		if ( $db_version_compare > 0 ) {
-			$wpgeo->install();
-
-			$wp_geoutil = WP_GeoUtil::get_instance();
-			$wp_geoutil->get_capabilities( true );
-			update_option( 'wp_geometa_db_version', $wp_geometa_version );
-		}
-	}
-}
-
-/**
- * There's a chance that someone installed a newer version of the plugin,
- * (or a plugin that used the library) which caused the option to get set,
- * then removed that plugin, which would mean that we aren't loading the
- * usual way.
- *
- * Add an action to try to load our classes after the rest of the plugins
- * get a chance to load.
- */
-if ( ! function_exists( 'wp_geometa_load_older_version' ) ) {
-	/**
-	 * Load this instance's libraries.
-	 */
-	function wp_geometa_load_older_version() {
-		if ( ! class_exists( 'WP_GeoMeta' ) ) {
-
-			require_once( dirname( __FILE__ ) . '/wp-geoquery.php' );
-			require_once( dirname( __FILE__ ) . '/wp-geometa.php' );
-			$wpgeo = WP_GeoMeta::get_instance();
-			$wpgq = WP_GeoQuery::get_instance();
-
-			$wp_geometa_version = '0.3.2';
-			$wp_geometa_max_version = get_option( 'wp_geometa_version', '0.0.0' );
-			$wp_geometa_db_version = get_option( 'wp_geometa_db_version', '0.0.0' );
-
-			// Since we just got loaded, make sure that the database reflects any
-			// changes that the latest version of WP_GeoMeta might have added.
-			$db_version_compare = version_compare( $wp_geometa_version, $wp_geometa_db_version );
-			if ( 0 > $db_version_compare ) {
-				$wpgeo->install();
-
-				$wp_geoutil = WP_GeoUtil::get_instance();
-				$wp_geoutil->get_capabilities( true );
-				update_option( 'wp_geometa_db_version', $wp_geometa_version );
-			}
-
-			/*
-			 * If we got downgraded, then the first found wp-geometa will have been
-			 * loaded. Lowering the version to this instance's version will allow
-			 * WP GeoMeta to pick the highest version again on the next run.
-			 *
-			 * Eg. This is v5 and is the first one that WP finds. v6 is also installed
-			 * and v7 was installed. When v7 is no longer found, this (v5) will run since
-			 * it was the first one found and will set wp_geometa_version to v5.
-			 *
-			 * On the next run, it would find that v6 is the higher version and would update
-			 * wp_geometa_version. On the run after that v6 would be loaded.
-			 */
-			update_option( 'wp_geometa_version', $wp_geometa_version );
-		}
-	}
-	add_action( 'plugins_loaded', 'wp_geometa_load_older_version' );
-}
-
-
-/**
- * Handle tasks that only matter if we're on the dashboard.
- *
- * The dashboard allows some actions that should be admin only.
- */
-if ( is_admin() ) {
-	if ( ! class_exists( 'WP_GeoMeta_Installs' ) ) {
+	if ( ! function_exists( 'wp_geometa_load_older_version' ) ) {
 		/**
-		 * This class is deliberately simple, because if it ever changes
-		 * the changes need to be backwards compatible.
-		 *
-		 * We're using a singleton instead of a global array to capture
-		 * each WP-GeoMeta's version and location.
+		 * Do nothing, just stop older versions from defining this function which would cause them to load.
 		 */
-		class WP_GeoMeta_Installs {
-			/**
-			 * Singleton variable
-			 *
-			 * @var $_instance
-			 */
-			private static $_instance = null;
-
-			/**
-			 * Get the singleton instance.
-			 */
-			public static function get_instance() {
-				return ( is_null( self::$_instance ) ? new self : self::$_instance );
-			}
-
-			/**
-			 * Add an install listing
-			 *
-			 * @param string $file __FILE__ of wp-geometa.php.
-			 * @param string $version the version of wp-geometa.php.
-			 */
-			public static function add( $file, $version ) {
-				$self = self::$_instance = WP_GeoMeta_Installs::get_instance();
-				$self->installs[ $file ] = $version;
-			}
-
-			/**
-			 * Get the list of installs with versions.
-			 */
-			public static function get_list() {
-				$self = WP_GeoMeta_Installs::get_instance();
-				return $self->installs;
-			}
+		function wp_geometa_load_older_version() {
 		}
 	}
 
-	// Add ourself to the list of installs.
-	WP_GeoMeta_Installs::add( __FILE__, $wp_geometa_version );
-}
-
-/**
- * Set up an activation hook for when this is a plugin.
- *
- * Plugins using this as a lib should run $wpgeo->install() themselves
- */
-if ( ! function_exists( 'wpgeometa_activation_hook' ) ) {
-	/**
-	 * Simple callback for the activation hook. Creates the spatial tables.
-	 */
-	function wpgeometa_activation_hook() {
-		require_once( dirname( __FILE__ ) . '/wp-geometa.php' );
-		$wpgeo = WP_GeoMeta::get_instance();
-		$wpgeo->install();
+	if ( ! function_exists( 'wpgeometa_setup_latlng_fields' ) ) {
+		/**
+		 * Do nothing, just stop older versions from defining this function.
+		 */
+		function wpgeometa_setup_latlng_fields() {
+		}
 	}
-	register_activation_hook( __FILE__ , 'wpgeometa_activation_hook' );
-}
-
-/**
- * Set up handling for standard latlng fields
- */
-if ( ! function_exists( 'wpgeometa_setup_latlng_fields' ) ) {
-	/**
-	 * A simple callback function to register the WordPress Geodata standard latitude and longitude fields
-	 *
-	 * See also https://codex.wordpress.org/Geodata for more info.
-	 */
-	function wpgeometa_setup_latlng_fields() {
-		WP_GeoMeta::add_latlng_field( 'geo_latitude', 'geo_longitude', 'geo_' );
-	}
-	add_action( 'init', 'wpgeometa_setup_latlng_fields' );
 }

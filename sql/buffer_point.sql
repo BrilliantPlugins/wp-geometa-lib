@@ -63,7 +63,7 @@ BEGIN
 	SET polygonstring = concat(polygonstring,firstcoords, '))');
 
 	-- Turn it into geometry and return it
-	RETURN GeomFromText(polygonstring);
+	RETURN ST_GeomFromText(polygonstring);
 
 END$$
 DELIMITER ;

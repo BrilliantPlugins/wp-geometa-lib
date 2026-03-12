@@ -42,7 +42,7 @@ BEGIN
 
 	DECLARE secondpoint TEXT;
 	SET secondpoint = CONCAT('POINT(', wp_point_bearing_distance_coord_pair(p,bearing,distance,eradius), ')');
-	RETURN LineString(p, GeomFromText(secondpoint) );
+	RETURN LineString(p, ST_GeomFromText(secondpoint) );
 END$$
 
 
@@ -65,8 +65,8 @@ BEGIN
 	SET geom = wp_first_geom( p );
 
 	SET d = distance / eradius;
-	SET lat1 = RADIANS( Y(geom) );
-	SET lon1 = RADIANS( X(geom) );
+	SET lat1 = RADIANS( ST_Y(geom) );
+	SET lon1 = RADIANS( ST_X(geom) );
 	SET tc = RADIANS( bearing );
 
 	-- http://williams.best.vwh.net/avform.htm#LL

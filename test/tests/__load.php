@@ -79,7 +79,7 @@ function fail( $wpq = null ) {
 		print ":-(\n";
 	}
 
-	if ( WP_GEOMETA_DEBUG > 0) {
+	if ( defined('WP_GEOMETA_DEBUG') && WP_GEOMETA_DEBUG > 0) {
 		$bt = debug_backtrace();
 		$caller = array_shift($bt);
 		print "\n" . basename($caller['file']) . ':' . $caller['line'] . "\n";
@@ -113,7 +113,7 @@ function unsupported( $unsupported_func = '' ) {
 		print ":-|\n";
 	}
 
-	if ( WP_GEOMETA_DEBUG > 0 ) {
+	if ( defined('WP_GEOMETA_DEBUG') && WP_GEOMETA_DEBUG > 0 ) {
 		$bt = debug_backtrace();
 		$caller = array_shift($bt);
 		print basename($caller['file']) . ':' . $caller['line'] . "\n";

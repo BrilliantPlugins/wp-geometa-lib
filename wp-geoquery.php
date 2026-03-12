@@ -125,7 +125,7 @@ if ( !class_exists( 'WP_GeoQuery', false ) ) {
 					continue;
 				}
 
-				if ( WP_GEOMETA_DEBUG > 1 ) {
+				if ( defined('WP_GEOMETA_DEBUG') && WP_GEOMETA_DEBUG > 1 ) {
 					print 'WPGM Final Where: ----' . esc_attr( $clauses['where'] ) . "---\n";
 					print "\n\n-------------\n\n";
 				}
@@ -179,7 +179,7 @@ if ( !class_exists( 'WP_GeoQuery', false ) ) {
 			$orig_join = 'JOIN ' . $realmetatable . $alias . ' ON ( ' . $primary_table . '.' . $primary_id_column . ' = ' . $metatable . '.' . $type . '_id )';
 			$new_join  = 'JOIN ( SELECT ' . $id_column . ', ' . $type . '_id, meta_key, ' . $new_meta_value . ' AS meta_value FROM ' . $realmetatable . '_geo ) AS ' . $metatable . ' ON ( ' . $primary_table . '.' . $primary_id_column . ' = ' . $metatable . '.' . $type . '_id )';
 
-			if ( WP_GEOMETA_DEBUG > 1 ) {
+			if ( defined('WP_GEOMETA_DEBUG') && WP_GEOMETA_DEBUG > 1 ) {
 				print "\n";
 				print 'Orig Join: ' . esc_attr( $clauses['join'] ) . "\n";
 				print 'Search Join: ' . esc_attr( $orig_join ) . "\n";
@@ -248,7 +248,7 @@ if ( !class_exists( 'WP_GeoQuery', false ) ) {
 
 			$this->make_join_spatial( $clauses,$meta_query,$type,$primary_table,$primary_id_column,$context, $metatable, $geotable, $id_column, $new_meta_value );
 
-			if ( WP_GEOMETA_DEBUG > 1 ) {
+			if ( defined('WP_GEOMETA_DEBUG') && WP_GEOMETA_DEBUG > 1 ) {
 				print 'WPGM Original Where: ---' . esc_attr( str_replace( ' ','*',"{$clauses['where']}" ) ) . "---\n";
 				print 'WPGM Search Patterns: ---' . esc_attr( str_replace( ' ','*',$std_query ) ) . "---\n";
 				print 'WPGM Replacement Pattern: ----' . esc_attr( $geom_query ) . "---\n";

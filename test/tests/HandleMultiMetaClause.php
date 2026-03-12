@@ -37,7 +37,7 @@ $wpq = new WP_Query( array(
 // Results should include the 3 geometries from above (Test Posts 2, 5 and 6) as well as these additional test posts which are intersected: (Test Posts 3, 8, 16 and 17)
 if ( $wpq->post_count != 7 ) {
 
-	if ( WP_GEOMETA_DEBUG > 1 ) {
+	if ( defined('WP_GEOMETA_DEBUG') && WP_GEOMETA_DEBUG > 1 ) {
 		while( $wpq->have_posts() ) {
 			$wpq->the_post();
 			print get_the_title() . "\n";
